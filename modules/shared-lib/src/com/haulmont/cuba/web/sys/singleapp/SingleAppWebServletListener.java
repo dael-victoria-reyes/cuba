@@ -71,9 +71,7 @@ public class SingleAppWebServletListener implements ServletContextListener {
 
 
             Method contextInitializedMethod = appContextLoaderClass.getMethod("contextInitialized", ServletContextEvent.class);
-            if (contextInitializedMethod == null) {
-                throw new RuntimeException("No contextInitialized method in AppContextLoader");
-            }
+
             contextInitializedMethod.invoke(appContextLoader, sce);
 
             Thread.currentThread().setContextClassLoader(contextClassLoader);
@@ -88,9 +86,6 @@ public class SingleAppWebServletListener implements ServletContextListener {
     public void contextDestroyed(ServletContextEvent sce) {
         try {
             Method contextDestroyed = appContextLoader.getClass().getMethod("contextDestroyed", ServletContextEvent.class);
-            if (contextDestroyed == null) {
-                throw new RuntimeException("No contextDestroyed method in AppContextLoader");
-            }
             contextDestroyed.invoke(appContextLoader, sce);
         } catch (Exception e) {
             throw new RuntimeException("An error occurred while destroying context of single WAR application", e);
