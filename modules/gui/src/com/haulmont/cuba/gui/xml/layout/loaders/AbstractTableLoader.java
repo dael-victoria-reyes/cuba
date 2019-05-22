@@ -225,6 +225,20 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
                             beanLocator.getPrototype(DeclarativeColumnGenerator.NAME, resultComponent, generatorMethod));
                 }
             }
+
+            // sort only first column with initial sort direction
+            Table.SortDirection direction = column.getInitialSortDirection();
+            if (direction != null) {
+                Table.SortInfo sortInfo = resultComponent.getSortInfo();
+                if (sortInfo == null) {
+                    if (column.getBoundProperty() == null) {
+                        throw new GuiDevelopmentException(
+                                String.format("Can't sort column '%s' because it is not bounded with entity's property", column.getStringId()),
+                                getContext());
+                    }
+                    resultComponent.sort(column.getStringId(), direction);
+                }
+            }
         }
 
         String multiselect = element.attributeValue("multiselect");
@@ -527,6 +541,11 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
         String sortable = element.attributeValue("sortable");
         if (StringUtils.isNotEmpty(sortable)) {
             column.setSortable(Boolean.parseBoolean(sortable));
+        }
+
+        String initialSort = element.attributeValue("doInitialSort");
+        if (initialSort != null) {
+            column.setInitialSortDirection(Table.SortDirection.valueOf(initialSort));
         }
 
         loadCaption(column, element);

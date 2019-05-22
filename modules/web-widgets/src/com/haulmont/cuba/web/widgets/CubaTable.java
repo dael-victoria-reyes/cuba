@@ -1008,4 +1008,9 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
 
         super.refreshRowCache();
     }
+
+    @Override
+    public void setSortAscendingAndPropertyId(boolean sortAscending, Object propertyId) {
+        super.setSortAscendingAndContainerPropertyId(sortAscending, propertyId);
+    }
 }

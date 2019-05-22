@@ -117,6 +117,8 @@ public interface CubaEnhancedTable extends AggregationContainer {
     void setAggregationDistributionProvider(Function<AggregationInputValueChangeContext, Boolean> distributionProvider);
     Function<AggregationInputValueChangeContext, Boolean> getAggregationDistributionProvider();
 
+    void setSortAscendingAndPropertyId(boolean sortAscending, Object propertyId);
+
     interface CellClickListener {
         void onClick(Object itemId, Object columnId);
     }

@@ -798,8 +798,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     @Override
     public void sortBy(Object propertyId, boolean ascending) {
         if (isSortable()) {
-            component.setSortAscending(ascending);
-            component.setSortContainerPropertyId(propertyId);
+            component.setSortAscendingAndPropertyId(ascending, propertyId);
             component.sort();
         }
     }
@@ -812,8 +811,9 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         }
 
         if (isSortable()) {
-            component.setSortAscending(direction == SortDirection.ASCENDING);
-            component.setSortContainerPropertyId(column.getId());
+            component.setSortAscendingAndPropertyId(
+                    direction == SortDirection.ASCENDING,
+                    column.getId());
             component.sort();
         }
     }

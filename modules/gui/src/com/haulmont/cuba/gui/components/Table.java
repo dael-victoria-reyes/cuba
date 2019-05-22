@@ -803,6 +803,7 @@ public interface Table<E extends Entity>
         protected ColumnAlignment alignment;
         protected boolean captionAsHtml;
         protected Float expandRatio;
+        protected SortDirection initialSortDirection;
 
         protected Function<T, Object> valueProvider;
 
@@ -1156,6 +1157,23 @@ public interface Table<E extends Entity>
          */
         public Float getExpandRatio() {
             return expandRatio;
+        }
+
+        /**
+         * @return initial sort direction or null if not specified
+         */
+        @Nullable
+        public SortDirection getInitialSortDirection() {
+            return initialSortDirection;
+        }
+
+        /**
+         * Sets initial sort direction. It is used by table loader in order to sort column with the given value.
+         *
+         * @param initialSortDirection sort direction
+         */
+        public void setInitialSortDirection(SortDirection initialSortDirection) {
+            this.initialSortDirection = initialSortDirection;
         }
     }
 
