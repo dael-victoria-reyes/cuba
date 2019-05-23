@@ -66,6 +66,9 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
     protected ComponentLoader buttonsPanelLoader;
     protected Element panelElement;
 
+    protected Table.Column initialSortColumn;
+    protected Table.SortDirection initialSortDirection;
+
     @Override
     public void loadComponent() {
         assignXmlDescriptor(resultComponent, element);
@@ -226,18 +229,13 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
                 }
             }
 
-            // sort only first column with initial sort direction
-            Table.SortDirection direction = column.getInitialSortDirection();
-            if (direction != null) {
-                Table.SortInfo sortInfo = resultComponent.getSortInfo();
-                if (sortInfo == null) {
-                    if (column.getBoundProperty() == null) {
-                        throw new GuiDevelopmentException(
-                                String.format("Can't sort column '%s' because it is not bounded with entity's property", column.getStringId()),
-                                getContext());
-                    }
-                    resultComponent.sort(column.getStringId(), direction);
+            if (initialSortDirection != null && column.equals(initialSortColumn)) {
+                if (column.getBoundProperty() == null) {
+                    throw new GuiDevelopmentException(
+                            String.format("Can't sort column '%s' because it is not bounded with entity's property", column.getStringId()),
+                            getContext());
                 }
+                resultComponent.sort(column.getStringId(), initialSortDirection);
             }
         }
 
@@ -545,7 +543,9 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
 
         String initialSort = element.attributeValue("doInitialSort");
         if (initialSort != null) {
-            column.setInitialSortDirection(Table.SortDirection.valueOf(initialSort));
+            // only last doInitialSort will be saved for sorting
+            initialSortDirection = Table.SortDirection.valueOf(initialSort);
+            initialSortColumn = column;
         }
 
         loadCaption(column, element);

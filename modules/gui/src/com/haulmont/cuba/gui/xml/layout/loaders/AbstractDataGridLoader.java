@@ -56,6 +56,9 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
     protected ComponentLoader buttonsPanelLoader;
     protected Element panelElement;
 
+    protected Column initialSortColumn;
+    protected DataGrid.SortDirection initialSortDirection;
+
     @Override
     public void createComponent() {
         resultComponent = createComponentInternal();
@@ -188,6 +191,17 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
             addDynamicAttributes(resultComponent, metaClass, null, null, availableColumns);
             //noinspection unchecked
             resultComponent.setItems(createEmptyDataGridItems(metaClass));
+        }
+
+        for (Column column : availableColumns) {
+            if (initialSortDirection != null && column.equals(initialSortColumn)) {
+                if (column.getPropertyPath() == null) {
+                    throw new GuiDevelopmentException(
+                            String.format("Can't sort column '%s' because it is not bounded with entity's property", column.getId()),
+                            getContext());
+                }
+                resultComponent.sort(column.getId(), initialSortDirection);
+            }
         }
 
         loadSelectionMode(resultComponent, element);
@@ -464,6 +478,13 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         String editable = element.attributeValue("editable");
         if (StringUtils.isNotEmpty(editable)) {
             column.setEditable(Boolean.parseBoolean(editable));
+        }
+
+        String doInitialSort = element.attributeValue("doInitialSort");
+        if (doInitialSort != null) {
+            // only last doInitialSort will be saved for sorting
+            initialSortDirection = DataGrid.SortDirection.valueOf(doInitialSort);
+            initialSortColumn = column;
         }
 
         String caption = loadCaption(element);

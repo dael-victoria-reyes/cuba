@@ -2516,6 +2516,8 @@
         <xs:attributeGroup ref="hasWidthProp"/>
         <xs:attribute name="minimumWidth" type="xs:string"/>
         <xs:attribute name="maximumWidth" type="xs:string"/>
+
+        <xs:attribute name="doInitialSort" type="sortDirection"/>
     </xs:complexType>
 
     <!-- DataGrid -->
