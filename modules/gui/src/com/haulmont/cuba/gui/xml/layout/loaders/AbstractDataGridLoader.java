@@ -201,6 +201,7 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
                             getContext());
                 }
                 resultComponent.sort(column.getId(), initialSortDirection);
+                break;
             }
         }
 
