@@ -66,9 +66,6 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
     protected ComponentLoader buttonsPanelLoader;
     protected Element panelElement;
 
-    protected Table.Column initialSortColumn;
-    protected Table.SortDirection initialSortDirection;
-
     @Override
     public void loadComponent() {
         assignXmlDescriptor(resultComponent, element);
@@ -228,21 +225,14 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
                             beanLocator.getPrototype(DeclarativeColumnGenerator.NAME, resultComponent, generatorMethod));
                 }
             }
-
-            if (initialSortDirection != null && column.equals(initialSortColumn)) {
-                if (column.getBoundProperty() == null) {
-                    throw new GuiDevelopmentException(
-                            String.format("Can't sort column '%s' because it is not bounded with entity's property", column.getStringId()),
-                            getContext());
-                }
-                resultComponent.sort(column.getStringId(), initialSortDirection);
-            }
         }
 
         String multiselect = element.attributeValue("multiselect");
         if (StringUtils.isNotEmpty(multiselect)) {
             resultComponent.setMultiSelect(Boolean.parseBoolean(multiselect));
         }
+
+        loadSortColumn(resultComponent, columnsElement, metaClass);
     }
 
     protected Metadata getMetadata() {
@@ -541,13 +531,6 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
             column.setSortable(Boolean.parseBoolean(sortable));
         }
 
-        String initialSort = element.attributeValue("doInitialSort");
-        if (initialSort != null) {
-            // only last doInitialSort will be saved for sorting
-            initialSortDirection = Table.SortDirection.valueOf(initialSort);
-            initialSortColumn = column;
-        }
-
         loadCaption(column, element);
         loadDescription(column, element);
 
@@ -770,5 +753,30 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
             }
         }
         return null;
+    }
+
+    protected void loadSortColumn(Table resultComponent, Element columnsElement, MetaClass metaClass) {
+        if (columnsElement == null) {
+            return;
+        }
+
+        List<Element> columns = columnsElement.elements("column");
+        for (Element element : columns) {
+            String sort = element.attributeValue("sort");
+            if (StringUtils.isNotBlank(sort)) {
+                String id = element.attributeValue("id");
+                MetaPropertyPath metaPropertyPath = getMetadataTools().resolveMetaPropertyPath(metaClass, id);
+
+                if (metaPropertyPath == null) {
+                    throw new GuiDevelopmentException(
+                            String.format("Can't sort column '%s' because it is not bounded with entity's property", id),
+                            getContext());
+                }
+                id = metaPropertyPath.toPathString();
+
+                Table.SortDirection sortDirection = Table.SortDirection.valueOf(sort);
+                resultComponent.sort(id, sortDirection);
+            }
+        }
     }
 }

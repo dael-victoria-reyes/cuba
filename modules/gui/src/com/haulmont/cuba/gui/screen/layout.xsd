@@ -2423,7 +2423,7 @@
         <xs:attribute name="resolution" type="dateFieldResolution"/>
         <xs:attribute name="dateFormat" type="xs:string"/>
 
-        <xs:attribute name="doInitialSort" type="sortDirection"/>
+        <xs:attribute name="sort" type="sortDirection"/>
     </xs:complexType>
 
     <!-- Table -->
@@ -2517,7 +2517,7 @@
         <xs:attribute name="minimumWidth" type="xs:string"/>
         <xs:attribute name="maximumWidth" type="xs:string"/>
 
-        <xs:attribute name="doInitialSort" type="sortDirection"/>
+        <xs:attribute name="sort" type="sortDirection"/>
     </xs:complexType>
 
     <!-- DataGrid -->

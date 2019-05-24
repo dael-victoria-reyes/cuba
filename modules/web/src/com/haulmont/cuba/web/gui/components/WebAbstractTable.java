@@ -157,6 +157,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     protected Map<Object, Table.Column<E>> columns = new HashMap<>();
     protected List<Table.Column<E>> columnsOrder = new ArrayList<>();
 
+    protected boolean sortable = true;
     protected boolean editable;
     protected Action itemClickAction;
     protected Action enterPressAction;
@@ -763,6 +764,8 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
     @Override
     public void setSortable(boolean sortable) {
+        this.sortable = sortable;
+
         component.setSortEnabled(sortable && canBeSorted(getItems()));
     }
 
@@ -1406,6 +1409,20 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
             if (!canBeSorted(tableItems)) {
                 setSortable(false);
+            } else { // restore sortable
+                component.setSortEnabled(sortable);
+            }
+
+            // resort data if table was sorted
+            if (isSortable()) {
+                if (getSortInfo() != null) {
+                    SortDirection sortDirection = getSortInfo().getAscending()
+                            ? SortDirection.ASCENDING : SortDirection.DESCENDING;
+                    Object columnId = getSortInfo().getPropertyId();
+                    String id = columnId instanceof MetaPropertyPath
+                            ? ((MetaPropertyPath) columnId).toPathString() : String.valueOf(columnId);
+                    sort(id, sortDirection);
+                }
             }
 
             refreshActionsState();
