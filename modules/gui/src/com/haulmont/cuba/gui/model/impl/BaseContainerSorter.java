@@ -18,6 +18,7 @@ package com.haulmont.cuba.gui.model.impl;
 
 import com.haulmont.chile.core.model.MetaClass;
 import com.haulmont.chile.core.model.MetaPropertyPath;
+import com.haulmont.cuba.core.app.dynamicattributes.DynamicAttributesUtils;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.Sort;
 import com.haulmont.cuba.gui.model.CollectionContainer;
@@ -67,7 +68,7 @@ public abstract class BaseContainerSorter implements Sorter {
         String propertyName = sort.getOrders().get(0).getProperty();
         boolean asc = sort.getOrders().get(0).getDirection() == Sort.Direction.ASC;
 
-        if (propertyName.startsWith("+")) {
+        if (DynamicAttributesUtils.isDynamicAttribute(propertyName)) {
             return Comparator.comparing(e -> e.getValueEx(propertyName), EntityValuesComparator.asc(asc));
         }
 
