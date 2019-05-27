@@ -66,6 +66,8 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
     protected ComponentLoader buttonsPanelLoader;
     protected Element panelElement;
 
+    protected boolean isColumnSorted = false;
+
     @Override
     public void loadComponent() {
         assignXmlDescriptor(resultComponent, element);
@@ -231,8 +233,6 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
         if (StringUtils.isNotEmpty(multiselect)) {
             resultComponent.setMultiSelect(Boolean.parseBoolean(multiselect));
         }
-
-        loadSortColumn(resultComponent, columnsElement, metaClass);
     }
 
     protected Metadata getMetadata() {
@@ -531,6 +531,11 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
             column.setSortable(Boolean.parseBoolean(sortable));
         }
 
+        String sort = element.attributeValue("sort");
+        if (StringUtils.isNotBlank(sort)) {
+            setColumnSort(column, sort);
+        }
+
         loadCaption(column, element);
         loadDescription(column, element);
 
@@ -755,28 +760,22 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
         return null;
     }
 
-    protected void loadSortColumn(Table resultComponent, Element columnsElement, MetaClass metaClass) {
-        if (columnsElement == null) {
-            return;
+    protected void setColumnSort(Table.Column column, String sort) {
+        if (isColumnSorted) {
+            throw new GuiDevelopmentException("Only one column can be sorted at the same time", getContext());
         }
 
-        List<Element> columns = columnsElement.elements("column");
-        for (Element element : columns) {
-            String sort = element.attributeValue("sort");
-            if (StringUtils.isNotBlank(sort)) {
-                String id = element.attributeValue("id");
-                MetaPropertyPath metaPropertyPath = getMetadataTools().resolveMetaPropertyPath(metaClass, id);
-
-                if (metaPropertyPath == null) {
-                    throw new GuiDevelopmentException(
-                            String.format("Can't sort column '%s' because it is not bounded with entity's property", id),
-                            getContext());
-                }
-                id = metaPropertyPath.toPathString();
-
-                Table.SortDirection sortDirection = Table.SortDirection.valueOf(sort);
-                resultComponent.sort(id, sortDirection);
-            }
+        if (column.getBoundProperty() == null) {
+            throw new GuiDevelopmentException(
+                    String.format("Can't sort column '%s' because it is not bounded with entity's property", column.getStringId()),
+                    getContext());
         }
+
+        getComponentContext().addPostInitTask((context1, window) -> {
+            Table.SortDirection sortDirection = Table.SortDirection.valueOf(sort);
+            resultComponent.sort(column.getStringId(), sortDirection);
+        });
+
+        isColumnSorted = true;
     }
 }

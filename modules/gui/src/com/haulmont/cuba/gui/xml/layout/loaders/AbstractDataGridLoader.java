@@ -56,6 +56,8 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
     protected ComponentLoader buttonsPanelLoader;
     protected Element panelElement;
 
+    protected boolean isColumnSorted = false;
+
     @Override
     public void createComponent() {
         resultComponent = createComponentInternal();
@@ -193,7 +195,6 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         loadSelectionMode(resultComponent, element);
         loadFrozenColumnCount(resultComponent, element);
         loadTabIndex(resultComponent, element);
-        loadColumnSort(resultComponent, columnsElement);
     }
 
     protected Metadata getMetadata() {
@@ -411,8 +412,17 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
     }
 
     protected Column loadColumn(DataGrid component, Element element, MetaClass metaClass) {
-        String id = loadId(element);
+        String id = element.attributeValue("id");
         String property = element.attributeValue("property");
+
+        if (id == null) {
+            if (property != null) {
+                id = property;
+            } else {
+                throw new GuiDevelopmentException("A column must have whether id or property specified",
+                        context, "DataGrid ID", component.getId());
+            }
+        }
 
         Column column;
         if (property != null) {
@@ -456,6 +466,11 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         String editable = element.attributeValue("editable");
         if (StringUtils.isNotEmpty(editable)) {
             column.setEditable(Boolean.parseBoolean(editable));
+        }
+
+        String sort = element.attributeValue("sort");
+        if (StringUtils.isNotBlank(sort)) {
+            setColumnSort(component, column, sort);
         }
 
         String caption = loadCaption(element);
@@ -510,21 +525,6 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         column.setFormatter(loadFormatter(element));
 
         return column;
-    }
-
-    protected String loadId(Element column) {
-        String id = column.attributeValue("id");
-        String property = column.attributeValue("property");
-
-        if (id == null) {
-            if (property != null) {
-                id = property;
-            } else {
-                throw new GuiDevelopmentException("A column must have whether id or property specified",
-                        context, "DataGrid ID", resultComponent.getId());
-            }
-        }
-        return id;
     }
 
     protected String loadCaption(Element element) {
@@ -656,28 +656,22 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         return null;
     }
 
-    protected void loadColumnSort(DataGrid resultComponent, Element columnsElement) {
-        if (columnsElement == null) {
-            return;
+    protected void setColumnSort(DataGrid component, Column column, String sort) {
+        if (isColumnSorted) {
+            throw new GuiDevelopmentException("Only one column can be sorted at the same time", getContext());
         }
 
-        List<Element> columnList = columnsElement.elements("column");
-        for (Element element : columnList) {
-            String sort = element.attributeValue("sort");
-            if (StringUtils.isNotBlank(sort)) {
-                String id = loadId(element);
-
-                Column column = resultComponent.getColumnNN(id);
-                if (column.getPropertyPath() == null) {
-                    throw new GuiDevelopmentException(
-                            String.format("Can't sort column '%s' because it is not bounded with entity's property", column.getId()),
-                            getContext());
-                }
-
-                DataGrid.SortDirection sortDirection = DataGrid.SortDirection.valueOf(sort);
-                resultComponent.sort(column.getId(), sortDirection);
-                return;
-            }
+        if (column.getPropertyPath() == null) {
+            throw new GuiDevelopmentException(
+                    String.format("Can't sort column '%s' because it is not bounded with entity's property", column.getId()),
+                    getContext());
         }
+
+        getComponentContext().addPostInitTask((context1, window) -> {
+            DataGrid.SortDirection sortDirection = DataGrid.SortDirection.valueOf(sort);
+            component.sort(column.getId(), sortDirection);
+        });
+
+        isColumnSorted = true;
     }
 }
