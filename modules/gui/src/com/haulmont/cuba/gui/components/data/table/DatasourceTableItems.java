@@ -185,4 +185,9 @@ public class DatasourceTableItems<E extends Entity<K>, K>
     public Map<AggregationInfo, String> aggregate(AggregationInfo[] aggregationInfos, Collection<?> itemIds) {
         return ((CollectionDatasource.Aggregatable) datasource).aggregate(aggregationInfos, itemIds);
     }
+
+    @Override
+    public Map<AggregationInfo, Object> unformattedAggregate(AggregationInfo[] aggregationInfos, Collection<?> itemIds) {
+        return ((CollectionDatasource.Aggregatable) datasource).unformattedAggregate(aggregationInfos, itemIds);
+    }
 }

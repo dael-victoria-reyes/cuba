@@ -39,6 +39,15 @@ public interface AggregationContainer extends Container {
 
     Map<Object, Object> aggregate(Context context);
 
+    /**
+     * Perform aggregation and return unformatted values, i.e. if aggregation was performed for Long type column it
+     * will return map with pair: AggregationInfo - Long.
+     *
+     * @param context aggregation context
+     * @return unformatted aggregation values
+     */
+    Map<Object, Object> unformattedAggregate(Context context);
+
     class Context {
         private Collection itemIds;
 

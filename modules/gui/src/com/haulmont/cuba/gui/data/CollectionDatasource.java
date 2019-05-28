@@ -407,6 +407,16 @@ public interface CollectionDatasource<T extends Entity<K>, K> extends Datasource
          * Perform aggregation
          */
         Map<AggregationInfo, String> aggregate(AggregationInfo[] aggregationInfos, Collection<K> itemIds);
+
+        /**
+         * Perform aggregation and return unformatted values, i.e. if aggregation was performed for Long type column it
+         * will return map with pair: AggregationInfo - Long.
+         *
+         * @param aggregationInfos aggregation infos
+         * @param itemIds          collection of item ids
+         * @return unformatted aggregation values
+         */
+        Map<AggregationInfo, Object> unformattedAggregate(AggregationInfo[] aggregationInfos, Collection<K> itemIds);
     }
 
     /**

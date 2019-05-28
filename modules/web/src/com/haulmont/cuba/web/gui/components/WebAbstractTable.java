@@ -909,7 +909,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     @Override
     public Map<Object, Object> getAggregationResults() {
         Collection<?> itemIds = WebAbstractTable.this.getItems().getItemIds();
-        return component.aggregate(new AggregationContainer.Context(itemIds));
+        return component.unformattedAggregate(new AggregationContainer.Context(itemIds));
     }
 
     @Override
@@ -1652,7 +1652,12 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
         @Override
         public Map<Object, Object> aggregate(Context context) {
-            return __aggregate(this, context);
+            return __aggregate(this, context, true);
+        }
+
+        @Override
+        public Map<Object, Object> unformattedAggregate(Context context) {
+            return __aggregate(this, context, false);
         }
     }
 
@@ -1696,7 +1701,12 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
         @Override
         public Map<Object, Object> aggregate(AggregationContainer.Context context) {
-            return __aggregate(this, context);
+            return __aggregate(this, context, true);
+        }
+
+        @Override
+        public Map<Object, Object> unformattedAggregate(Context context) {
+            return __aggregate(this, context, false);
         }
     }
 
@@ -2605,7 +2615,8 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         throw new IllegalArgumentException(msg);
     }
 
-    protected Map<Object, Object> __aggregate(AggregationContainer container, AggregationContainer.Context context) {
+    protected Map<Object, Object> __aggregate(AggregationContainer container, AggregationContainer.Context context,
+                                              boolean getFormattedResult) {
         if (!(getItems() instanceof AggregatableTableItems)) {
             throw new IllegalStateException("Table items must implement AggregatableTableItems in " +
                     "order to use aggregation");
@@ -2621,10 +2632,17 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
             }
         }
 
-        Map<AggregationInfo, String> results = ((AggregatableTableItems<E>) getItems()).aggregate(
-                aggregationInfos.toArray(new AggregationInfo[0]),
-                context.getItemIds()
-        );
+        Map<AggregationInfo, ?> results;
+        if (getFormattedResult) {
+            results = ((AggregatableTableItems<E>) getItems()).aggregate(
+                    aggregationInfos.toArray(new AggregationInfo[0]),
+                    context.getItemIds());
+        } else {
+            results = ((AggregatableTableItems<E>) getItems()).unformattedAggregate(
+                    aggregationInfos.toArray(new AggregationInfo[0]),
+                    context.getItemIds());
+        }
+
         Map<Object, Object> resultsByColumns = new LinkedHashMap<>();
         for (Object propertyId : container.getAggregationPropertyIds()) {
             Table.Column column = columns.get(propertyId);
