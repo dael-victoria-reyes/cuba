@@ -31,16 +31,14 @@ import java.net.URLClassLoader;
  * This class and its twin com.haulmont.cuba.web.sys.singleapp.SingleAppWebServletListener separate "web" and "core" classes
  * to different classloaders when we pack application to single WAR.
  * <p>
- * We create 2 URLClassLoaders (1 for core and 1 for web), with predefined (during single WAR build) list of jars (core.dependencies).
- * So the classloaders load classes from the jars and only if class is not found they delegate loading to base WebAppClassLoader (their parent).
+ * We create 2 URLClassLoaders (1 for core and 1 for web), with predefined (during single WAR build) list of jars (/WEB-INF/lib-core/).
  * <p>
  * As a result, core classloader contains core classes, web classloder contains web classes and WebAppClassLoader contains "shared" classes.
  * <p>
  * To make sure the Spring context use specific classloader we load {@code AppWebContextLoader} reflectively, create new instance
  * and call its initialization methods reflectively as well.
  * <p>
- * As each classloader has its own AppContext version, we can put property with dependencies to AppContext (reflectively as well).
- * The property will be used on spring context creation, to detect which jars to scan.
+ * As each classloader has its own AppContext version, we can scan jars only from defined folders (/WEB-INF/lib-core/ for "core" jars).
  */
 public class SingleAppCoreServletListener implements ServletContextListener {
     protected Object appContextLoader;
