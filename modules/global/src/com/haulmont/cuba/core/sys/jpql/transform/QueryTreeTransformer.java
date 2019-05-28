@@ -299,14 +299,11 @@ public class QueryTreeTransformer {
 
     public void replaceIsNullStatements(List<SimpleConditionNode> conditions, boolean isNullValue) {
         for (SimpleConditionNode condition : conditions) {
-            Tree isToken = condition.getFirstChildWithType(JPA2Lexer.T__107);
-            if (isToken != null) {
-                Tree notToken = condition.getFirstChildWithType(JPA2Lexer.NOT);
-                condition.getChildren().clear();
-                condition.addChild(createWord((isNullValue && notToken == null)
-                        || (!isNullValue && notToken != null) ? "1=1" : "1=0"));
-                condition.freshenParentAndChildIndexes();
-            }
+            Tree notToken = condition.getFirstChildWithType(JPA2Lexer.NOT);
+            condition.getChildren().clear();
+            condition.addChild(createWord((isNullValue && notToken == null)
+                    || (!isNullValue && notToken != null) ? "1=1" : "1=0"));
+            condition.freshenParentAndChildIndexes();
         }
     }
 
