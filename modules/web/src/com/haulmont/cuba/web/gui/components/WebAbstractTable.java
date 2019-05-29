@@ -3205,6 +3205,41 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         return null;
     }
 
+    @Override
+    public void showNoDataPanel(boolean show) {
+
+    }
+
+    @Override
+    public boolean isNoDataPanelShown() {
+        return false;
+    }
+
+    @Override
+    public void setNoDataMessage(String message) {
+
+    }
+
+    @Override
+    public String getNoDataMessage() {
+        return null;
+    }
+
+    @Override
+    public void setNoDataLinkMessage(String message) {
+
+    }
+
+    @Override
+    public String getNoDataLinkMessage() {
+        return null;
+    }
+
+    @Override
+    public void setNoDataLinkClickHandler(Consumer<NoDataLinkClickEvent> clickHandler) {
+
+    }
+
     protected static class InstalledStyleProvider implements StyleProvider {
         private final FrameOwner frameOwner;
         private final Method method;

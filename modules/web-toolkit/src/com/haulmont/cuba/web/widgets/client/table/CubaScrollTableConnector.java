@@ -228,6 +228,13 @@ public class CubaScrollTableConnector extends TableConnector {
         if (arow != null) {
             getWidget().updateAggregationRow(arow);
         }
+
+        UIDL noDataPanel = uidl.getChildByTagName("noDataPanel");
+        if (noDataPanel != null) {
+            getWidget().updateEmptyStatePanel(noDataPanel);
+        } else {
+            getWidget().removeEmptyStatePanel();
+        }
     }
 
     @Override

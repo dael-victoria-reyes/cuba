@@ -300,6 +300,18 @@ public interface Table<E extends Entity>
         return getAction(name);
     }
 
+    void showNoDataPanel(boolean show);
+    boolean isNoDataPanelShown();
+
+    void setNoDataMessage(String message);
+    String getNoDataMessage();
+
+    void setNoDataLinkMessage(String message);
+    String getNoDataLinkMessage();
+
+    void setNoDataLinkClickHandler(Consumer<NoDataLinkClickEvent> clickHandler);
+    Consumer<NoDataLinkClickEvent> getNoDataLinkHandler();
+
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     /**
@@ -1358,4 +1370,30 @@ public interface Table<E extends Entity>
             return isTotalAggregation;
         }
     }
+
+    // todo remove
+    enum TableContainerEmptyType {
+        EMPTY_CONTAINER,
+        STUB_CONTAINER
+    }
+
+    class NoDataLinkClickEvent extends EventObject {
+
+        protected TableContainerEmptyType type;
+
+        public NoDataLinkClickEvent(Table source) {
+            super(source);
+        }
+
+        @Override
+        public Table getSource() {
+            return (Table) super.getSource();
+        }
+
+        public TableContainerEmptyType getType() {
+            return type;
+        }
+    }
+
+
 }

@@ -661,6 +661,17 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
             }
             target.addAttribute("colcubaids", visibleColOrder.toArray());
         }
+
+        // todo remove
+//        if (items.size() == 0) {
+//            target.startTag("noDataPanel");
+//
+//
+//            target.addAttribute("reasonMsg", "");
+//            target.addAttribute("actionMsg", "");
+//
+//            target.endTag("noDataPanel");
+//        }
     }
 
     protected Collection<?> getAggregationItemIds() {
@@ -920,6 +931,41 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
             return aggregationTooltips.get(columnId);
         }
         return null;
+    }
+
+    @Override
+    public void showNoDataPanel(boolean show) {
+        getState().showNoDataPanel = show;
+    }
+
+    @Override
+    public boolean isNoDataPanelShown() {
+        return getState(false).showNoDataPanel;
+    }
+
+    @Override
+    public void setNoDataMessage(String message) {
+        getState().noDataMessage = message;
+    }
+
+    @Override
+    public String getNoDataMessage() {
+        return getState(false).noDataMessage;
+    }
+
+    @Override
+    public void setNoDataLinkMessage(String message) {
+        getState().noDataLinkMessage = message;
+    }
+
+    @Override
+    public String getNoDataLinkMessage() {
+        return getState(false).noDataLinkMessage;
+    }
+
+    @Override
+    public void setNoDataLinkClickHandler(Runnable noDataLinkClickHandler) {
+
     }
 
     protected void updateColumnDescriptions() {
