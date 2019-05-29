@@ -169,12 +169,12 @@ public class WebGroupTable<E extends Entity> extends WebAbstractTable<CubaGroupT
 
         @Override
         public Map<Object, Object> aggregate(Context context) {
-            return __aggregate(this, context, true);
+            return __aggregate(this, context);
         }
 
         @Override
         public Map<Object, Object> unformattedAggregate(Context context) {
-            return __aggregate(this, context, false);
+            return __unformattedAggregate(this, context);
         }
     }
 
