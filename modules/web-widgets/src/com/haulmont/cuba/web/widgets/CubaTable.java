@@ -63,6 +63,8 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
 
     protected boolean aggregatable = false;
 
+    protected boolean showNoDataPanel = true;
+
     protected Set<Object> nonSortableProperties; // lazily initialized Set
 
     protected Map<Object, CellClickListener> cellClickListeners; // lazily initialized map
@@ -89,7 +91,7 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
     protected Consumer<Component> afterUnregisterComponentHandler;
     protected Runnable beforeRefreshRowCacheHandler;
 
-    protected CubaNoDataPanel noDataPanel;
+    protected Runnable noDataLinkClickHandler;
 
     public CubaTable() {
         registerRpc(new CubaTableServerRpc() {
@@ -128,8 +130,8 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
 
             @Override
             public void onNoDataLinkClick() {
-                if (noDataPanel != null && noDataPanel.getNoDataLinkClickHandler() != null) {
-                    noDataPanel.getNoDataLinkClickHandler().run();
+                if (noDataLinkClickHandler != null) {
+                    noDataLinkClickHandler.run();
                 }
             }
         });
@@ -671,16 +673,7 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
             target.addAttribute("colcubaids", visibleColOrder.toArray());
         }
 
-        if (items.size() == 0 && noDataPanel != null) {
-            target.startTag("noDataPanel");
-
-            target.addAttribute("htmlEnabled", noDataPanel.isHtmlEnabled());
-            target.addAttribute("noDataMessage", noDataPanel.getNoDataMessage());
-            target.addAttribute("noDataLinkMessage", noDataPanel.getNoDataLinkMessage());
-            target.addAttribute("linkClickHandler", noDataPanel.getNoDataLinkClickHandler() != null);
-
-            target.endTag("noDataPanel");
-        }
+        target.addAttribute("showNoDataPanel", items.size() == 0 && showNoDataPanel);
     }
 
     protected Collection<?> getAggregationItemIds() {
@@ -943,8 +936,28 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
     }
 
     @Override
-    public void setNoDataPanel(CubaNoDataPanel noDataPanel) {
-        this.noDataPanel = noDataPanel;
+    public void showNoDataPanel(boolean show) {
+        this.showNoDataPanel = show;
+    }
+
+    @Override
+    public boolean isNoDataPanelShown() {
+        return showNoDataPanel;
+    }
+
+    @Override
+    public void setNoDataMessage(String message) {
+        getState().noDataMessage = message;
+    }
+
+    @Override
+    public void setNoDataLinkMessage(String message) {
+        getState().noDataLinkMessage = message;
+    }
+
+    @Override
+    public void setNoDataLinkClickHandler(Runnable handler) {
+        this.noDataLinkClickHandler = handler;
     }
 
     protected void updateColumnDescriptions() {

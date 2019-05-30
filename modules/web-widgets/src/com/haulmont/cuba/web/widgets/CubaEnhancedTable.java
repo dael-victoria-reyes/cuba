@@ -159,7 +159,13 @@ public interface CubaEnhancedTable extends AggregationContainer {
      */
     Object getItemByRowKey(String rowKey);
 
-    void setNoDataPanel(CubaNoDataPanel show);
+    void showNoDataPanel(boolean show);
+    boolean isNoDataPanelShown();
+
+    void setNoDataMessage(String message);
+    void setNoDataLinkMessage(String message);
+
+    void setNoDataLinkClickHandler(Runnable handler);
 
     interface CellValueFormatter {
         String getFormattedValue(Object rowId, Object colId, Property<?> property);
@@ -186,42 +192,6 @@ public interface CubaEnhancedTable extends AggregationContainer {
 
         public boolean isTotalAggregation() {
             return isTotalAggregation;
-        }
-    }
-
-    class CubaNoDataPanel {
-
-        protected String noDataMessage;
-        protected String noDataLinkMessage;
-
-        protected boolean htmlEnabled;
-
-        protected Runnable noDataLinkClickHandler;
-
-        public CubaNoDataPanel(String noDataMessage, String noDataLinkMessage, boolean htmlEnabled) {
-            this.noDataMessage = noDataMessage;
-            this.noDataLinkMessage = noDataLinkMessage;
-            this.htmlEnabled = htmlEnabled;
-        }
-
-        public String getNoDataMessage() {
-            return noDataMessage;
-        }
-
-        public String getNoDataLinkMessage() {
-            return noDataLinkMessage;
-        }
-
-        public boolean isHtmlEnabled() {
-            return htmlEnabled;
-        }
-
-        public Runnable getNoDataLinkClickHandler() {
-            return noDataLinkClickHandler;
-        }
-
-        public void setNoDataLinkClickHandler(Runnable noDataLinkClickHandler) {
-            this.noDataLinkClickHandler = noDataLinkClickHandler;
         }
     }
 }

@@ -15,54 +15,31 @@ public class TableNoDataPanel implements EventListener {
     protected Runnable linkClickHandler;
 
     protected DivElement container;
-    protected SpanElement reasonLabel;
-    protected DivElement actionLink;
-
-    protected boolean useClickHandler = false;
-    protected boolean htmlEnabled = false;
+    protected SpanElement messageLabel;
+    protected DivElement linkMessageLabel;
 
     public TableNoDataPanel() {
         container = Document.get().createDivElement();
         container.setClassName("c-table-nodata-panel");
 
-        reasonLabel = Document.get().createSpanElement();
-        reasonLabel.setClassName("c-table-nodata-panel-reason");
-        container.appendChild(reasonLabel);
+        messageLabel = Document.get().createSpanElement();
+        messageLabel.setClassName("c-table-nodata-panel-message");
+        container.appendChild(messageLabel);
 
-        actionLink = Document.get().createDivElement();
-        actionLink.setClassName("c-table-nodata-panel-action");
-        container.appendChild(actionLink);
+        linkMessageLabel = Document.get().createDivElement();
+        linkMessageLabel.setClassName("c-table-nodata-panel-link");
+        container.appendChild(linkMessageLabel);
 
         Event.sinkEvents(container, Event.ONCLICK);
         Event.setEventListener(container, this);
     }
 
-    public void updateFromUIDL(UIDL uidl) {
-        setHtmlEnabled(uidl.getBooleanAttribute("htmlEnabled"));
-        setNoDataMessage(uidl.getStringAttribute("noDataMessage"));
-        setNoDataLinkMessage(uidl.getStringAttribute("noDataLinkMessage"));
-
-        useClickHandler = uidl.getBooleanAttribute("linkClickHandler");
-    }
-
-    public void setHtmlEnabled(boolean htmlEnabled) {
-        this.htmlEnabled = htmlEnabled;
-    }
-
     public void setNoDataMessage(String message) {
-        if (htmlEnabled) {
-            reasonLabel.setInnerHTML(message);
-        } else {
-            reasonLabel.setInnerText(message);
-        }
+        messageLabel.setInnerText(message);
     }
 
     public void setNoDataLinkMessage(String message) {
-        if (htmlEnabled) {
-            actionLink.setInnerHTML(message);
-        } else {
-            actionLink.setInnerText(message);
-        }
+        linkMessageLabel.setInnerText(message);
     }
 
     public void setLinkClickHandler(Runnable linkClickHandler) {
@@ -78,9 +55,9 @@ public class TableNoDataPanel implements EventListener {
         if (event.getTypeInt() == Event.ONCLICK) {
             Element fromElement = Element.as(event.getEventTarget());
 
-            if (actionLink.isOrHasChild(fromElement)
+            if (linkMessageLabel.isOrHasChild(fromElement)
                     && linkClickHandler != null
-                    && useClickHandler) {
+                    && !linkMessageLabel.getInnerText().isEmpty()) {
                 linkClickHandler.run();
             }
         }

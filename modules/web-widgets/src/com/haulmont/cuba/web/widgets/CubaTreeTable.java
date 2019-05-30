@@ -1033,7 +1033,27 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
     }
 
     @Override
-    public void setNoDataPanel(CubaNoDataPanel show) {
+    public void showNoDataPanel(boolean show) {
+
+    }
+
+    @Override
+    public boolean isNoDataPanelShown() {
+        return false;
+    }
+
+    @Override
+    public void setNoDataMessage(String message) {
+
+    }
+
+    @Override
+    public void setNoDataLinkMessage(String message) {
+
+    }
+
+    @Override
+    public void setNoDataLinkClickHandler(Runnable handler) {
 
     }
 

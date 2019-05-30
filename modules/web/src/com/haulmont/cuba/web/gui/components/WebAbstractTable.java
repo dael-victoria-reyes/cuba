@@ -45,6 +45,7 @@ import com.haulmont.cuba.gui.components.data.meta.ContainerDataUnit;
 import com.haulmont.cuba.gui.components.data.meta.DatasourceDataUnit;
 import com.haulmont.cuba.gui.components.data.meta.EntityTableItems;
 import com.haulmont.cuba.gui.components.data.table.DatasourceTableItems;
+import com.haulmont.cuba.gui.components.data.table.EmptyTableItems;
 import com.haulmont.cuba.gui.components.sys.ShowInfoAction;
 import com.haulmont.cuba.gui.data.CollectionDatasource;
 import com.haulmont.cuba.gui.data.Datasource;
@@ -75,7 +76,6 @@ import com.haulmont.cuba.web.gui.icons.IconResolver;
 import com.haulmont.cuba.web.widgets.CubaButton;
 import com.haulmont.cuba.web.widgets.CubaEnhancedTable;
 import com.haulmont.cuba.web.widgets.CubaEnhancedTable.AggregationInputValueChangeContext;
-import com.haulmont.cuba.web.widgets.CubaEnhancedTable.CubaNoDataPanel;
 import com.haulmont.cuba.web.widgets.CubaUI;
 import com.haulmont.cuba.web.widgets.compatibility.CubaValueChangeEvent;
 import com.haulmont.cuba.web.widgets.data.AggregationContainer;
@@ -200,8 +200,6 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
     protected com.vaadin.v7.ui.Table.ColumnGenerator VALUE_PROVIDER_GENERATOR =
             (source, itemId, columnId) -> formatCellValue(itemId, columnId, null);
-
-    protected NoDataPanel noDataPanel;
 
     protected WebAbstractTable() {
     }
@@ -1064,6 +1062,12 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         componentComposition.setHeightUndefined();
         componentComposition.setWidthUndefined();
 
+        component.setNoDataMessage(messages.getMainMessage("table.noDataPanelMessage.emptyContainer"));
+        component.setNoDataLinkMessage(messages.getMainMessage("table.noDataPanelLinkMessage.emptyContainer"));
+        component.setNoDataLinkClickHandler(() -> {
+
+        });
+
         setClientCaching();
     }
 
@@ -1411,6 +1415,11 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
             if (!canBeSorted(tableItems)) {
                 setSortable(false);
+            }
+
+            if (tableItems instanceof EmptyTableItems) {
+                component.setNoDataMessage(messages.getMainMessage("table.noDataPanelMessage.nullContainer"));
+                component.setNoDataLinkMessage(null);
             }
 
             refreshActionsState();
@@ -3209,25 +3218,13 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     }
 
     @Override
-    public void setNoDataPanel(NoDataPanel panel) {
-        this.noDataPanel = panel;
-
-        CubaNoDataPanel cubaNoDataPanel = null;
-        if (panel != null) {
-            cubaNoDataPanel = new CubaNoDataPanel(panel.getNoDataMessage(),
-                    panel.getNoDataLinkMessage(), panel.isHtmlEnabled());
-
-            Consumer<NoDataLinkClickEvent> handler = panel.getNoDataLinkClickHandler();
-            if (handler != null) {
-                cubaNoDataPanel.setNoDataLinkClickHandler(() -> handler.accept(new NoDataLinkClickEvent(this)));
-            }
-        }
-        component.setNoDataPanel(cubaNoDataPanel);
+    public void showNoDataPanel(boolean show) {
+        component.showNoDataPanel(show);
     }
 
     @Override
-    public NoDataPanel getNoDataPanel() {
-        return noDataPanel;
+    public boolean isNoDataPanelShown() {
+        return component.isNoDataPanelShown();
     }
 
     protected static class InstalledStyleProvider implements StyleProvider {

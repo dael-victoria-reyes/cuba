@@ -229,10 +229,11 @@ public class CubaScrollTableConnector extends TableConnector {
             getWidget().updateAggregationRow(arow);
         }
 
-        UIDL noDataPanel = uidl.getChildByTagName("noDataPanel");
-        getWidget().showNoDataPanel(noDataPanel != null);
-        if (noDataPanel != null) {
-            getWidget()._delegate.noDataPanel.updateFromUIDL(noDataPanel);
+        boolean showNoDataPanel = uidl.getBooleanAttribute("showNoDataPanel");
+        getWidget().showNoDataPanel(showNoDataPanel);
+        if (showNoDataPanel) {
+            getWidget()._delegate.noDataPanel.setNoDataMessage(getState().noDataMessage);
+            getWidget()._delegate.noDataPanel.setNoDataLinkMessage(getState().noDataLinkMessage);
             getWidget()._delegate.noDataPanel.setLinkClickHandler(getWidget()._delegate.noDataPanelLinkClickHandler);
         }
     }
