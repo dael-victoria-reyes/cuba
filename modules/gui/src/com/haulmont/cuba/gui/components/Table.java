@@ -300,17 +300,8 @@ public interface Table<E extends Entity>
         return getAction(name);
     }
 
-    void showNoDataPanel(boolean show);
-    boolean isNoDataPanelShown();
-
-    void setNoDataMessage(String message);
-    String getNoDataMessage();
-
-    void setNoDataLinkMessage(String message);
-    String getNoDataLinkMessage();
-
-    void setNoDataLinkClickHandler(Consumer<NoDataLinkClickEvent> clickHandler);
-    Consumer<NoDataLinkClickEvent> getNoDataLinkHandler();
+    void setNoDataPanel(NoDataPanel noDataPanel);
+    NoDataPanel getNoDataPanel();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1371,15 +1362,7 @@ public interface Table<E extends Entity>
         }
     }
 
-    // todo remove
-    enum TableContainerEmptyType {
-        EMPTY_CONTAINER,
-        STUB_CONTAINER
-    }
-
     class NoDataLinkClickEvent extends EventObject {
-
-        protected TableContainerEmptyType type;
 
         public NoDataLinkClickEvent(Table source) {
             super(source);
@@ -1389,11 +1372,51 @@ public interface Table<E extends Entity>
         public Table getSource() {
             return (Table) super.getSource();
         }
-
-        public TableContainerEmptyType getType() {
-            return type;
-        }
     }
 
+    class NoDataPanel {
 
+        protected String noDataMessage;
+        protected String noDataLinkMessage;
+
+        protected boolean htmlEnabled = false;
+
+        protected Consumer<NoDataLinkClickEvent> noDataLinkClickHandler;
+
+        public NoDataPanel withHtmlEnabled(boolean htmlEnabled) {
+            this.htmlEnabled = htmlEnabled;
+            return this;
+        }
+
+        public boolean isHtmlEnabled() {
+            return htmlEnabled;
+        }
+
+        public NoDataPanel withNoDataMessage(String message) {
+            this.noDataMessage = message;
+            return this;
+        }
+
+        public String getNoDataMessage() {
+            return noDataMessage;
+        }
+
+        public NoDataPanel withNoDataLinkMessage(String message) {
+            this.noDataLinkMessage = message;
+            return this;
+        }
+
+        public String getNoDataLinkMessage() {
+            return noDataLinkMessage;
+        }
+
+        public NoDataPanel withNoDataLinkClickHandler(Consumer<NoDataLinkClickEvent> noDataLinkClickHandler) {
+            this.noDataLinkClickHandler = noDataLinkClickHandler;
+            return this;
+        }
+
+        public Consumer<NoDataLinkClickEvent> getNoDataLinkClickHandler() {
+            return noDataLinkClickHandler;
+        }
+    }
 }

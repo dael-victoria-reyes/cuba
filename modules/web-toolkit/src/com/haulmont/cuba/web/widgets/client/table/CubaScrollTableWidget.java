@@ -300,19 +300,19 @@ public class CubaScrollTableWidget extends VScrollTable implements TableWidget {
         _delegate.aggregationRow.setHorizontalScrollPosition(scrollLeft);
     }
 
-    protected void updateEmptyStatePanel(UIDL uidl) {
-        if (_delegate.emptyStatePanel == null) {
-            _delegate.emptyStatePanel = new TableNoDataPanel();
-            scrollBodyPanel.getElement().appendChild(_delegate.emptyStatePanel.getElement());
-        }
+    protected void showNoDataPanel(boolean show) {
+        if (show) {
+            if (_delegate.noDataPanel == null) {
+                _delegate.noDataPanel = new TableNoDataPanel();
+            }
 
-        _delegate.emptyStatePanel.updateFromUIDL(uidl);
-    }
-
-    protected void removeEmptyStatePanel() {
-        if (_delegate.emptyStatePanel != null) {
-            _delegate.emptyStatePanel.getElement().removeFromParent();
-            _delegate.emptyStatePanel = null;
+            Element noDataElement = _delegate.noDataPanel.getElement();
+            if (!scrollBodyPanel.getElement().isOrHasChild(noDataElement)) {
+                scrollBodyPanel.getElement().appendChild(noDataElement);
+            }
+        } else if (_delegate.noDataPanel != null) {
+            _delegate.noDataPanel.getElement().removeFromParent();
+            _delegate.noDataPanel = null;
         }
     }
 

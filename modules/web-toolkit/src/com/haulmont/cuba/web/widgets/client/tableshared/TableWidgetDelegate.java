@@ -66,7 +66,9 @@ public class TableWidgetDelegate {
     public boolean multiLineCells = false;
 
     public TableAggregationRow aggregationRow;
-    public TableNoDataPanel emptyStatePanel;
+
+    public TableNoDataPanel noDataPanel;
+    public Runnable noDataPanelLinkClickHandler;
 
     public Set<String> clickableColumns;
     public Set<String> htmlCaptionColumns;

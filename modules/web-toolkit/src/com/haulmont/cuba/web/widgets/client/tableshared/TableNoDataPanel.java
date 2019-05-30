@@ -9,14 +9,17 @@ import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
 import com.vaadin.client.UIDL;
-import com.vaadin.client.WidgetUtil;
 
 public class TableNoDataPanel implements EventListener {
 
-    protected DivElement container;
+    protected Runnable linkClickHandler;
 
+    protected DivElement container;
     protected SpanElement reasonLabel;
     protected DivElement actionLink;
+
+    protected boolean useClickHandler = false;
+    protected boolean htmlEnabled = false;
 
     public TableNoDataPanel() {
         container = Document.get().createDivElement();
@@ -35,15 +38,35 @@ public class TableNoDataPanel implements EventListener {
     }
 
     public void updateFromUIDL(UIDL uidl) {
-        String reasonMsg = uidl.getStringAttribute("reasonMsg");
-        if (reasonMsg != null) {
-            reasonLabel.setInnerHTML(WidgetUtil.escapeHTML(reasonMsg));
-        }
+        setHtmlEnabled(uidl.getBooleanAttribute("htmlEnabled"));
+        setNoDataMessage(uidl.getStringAttribute("noDataMessage"));
+        setNoDataLinkMessage(uidl.getStringAttribute("noDataLinkMessage"));
 
-        String actionMsg = uidl.getStringAttribute("actionMsg");
-        if (actionMsg != null) {
-            actionLink.setInnerHTML(WidgetUtil.escapeHTML(actionMsg));
+        useClickHandler = uidl.getBooleanAttribute("linkClickHandler");
+    }
+
+    public void setHtmlEnabled(boolean htmlEnabled) {
+        this.htmlEnabled = htmlEnabled;
+    }
+
+    public void setNoDataMessage(String message) {
+        if (htmlEnabled) {
+            reasonLabel.setInnerHTML(message);
+        } else {
+            reasonLabel.setInnerText(message);
         }
+    }
+
+    public void setNoDataLinkMessage(String message) {
+        if (htmlEnabled) {
+            actionLink.setInnerHTML(message);
+        } else {
+            actionLink.setInnerText(message);
+        }
+    }
+
+    public void setLinkClickHandler(Runnable linkClickHandler) {
+        this.linkClickHandler = linkClickHandler;
     }
 
     public Element getElement() {
@@ -55,8 +78,10 @@ public class TableNoDataPanel implements EventListener {
         if (event.getTypeInt() == Event.ONCLICK) {
             Element fromElement = Element.as(event.getEventTarget());
 
-            if (actionLink.isOrHasChild(fromElement)) {
-
+            if (actionLink.isOrHasChild(fromElement)
+                    && linkClickHandler != null
+                    && useClickHandler) {
+                linkClickHandler.run();
             }
         }
     }

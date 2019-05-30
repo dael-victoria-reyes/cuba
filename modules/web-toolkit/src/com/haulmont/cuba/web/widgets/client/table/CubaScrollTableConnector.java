@@ -230,10 +230,10 @@ public class CubaScrollTableConnector extends TableConnector {
         }
 
         UIDL noDataPanel = uidl.getChildByTagName("noDataPanel");
+        getWidget().showNoDataPanel(noDataPanel != null);
         if (noDataPanel != null) {
-            getWidget().updateEmptyStatePanel(noDataPanel);
-        } else {
-            getWidget().removeEmptyStatePanel();
+            getWidget()._delegate.noDataPanel.updateFromUIDL(noDataPanel);
+            getWidget()._delegate.noDataPanel.setLinkClickHandler(getWidget()._delegate.noDataPanelLinkClickHandler);
         }
     }
 
@@ -269,6 +269,8 @@ public class CubaScrollTableConnector extends TableConnector {
         getWidget()._delegate.totalAggregationInputHandler = (columnKey, value, isFocused) -> {
             getRpcProxy(CubaTableServerRpc.class).onAggregationTotalInputChange(columnKey, value, isFocused);
         };
+
+        getWidget()._delegate.noDataPanelLinkClickHandler = () -> getRpcProxy(CubaTableServerRpc.class).onNoDataLinkClick();
     }
 
     @Override

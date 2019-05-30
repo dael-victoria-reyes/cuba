@@ -75,6 +75,7 @@ import com.haulmont.cuba.web.gui.icons.IconResolver;
 import com.haulmont.cuba.web.widgets.CubaButton;
 import com.haulmont.cuba.web.widgets.CubaEnhancedTable;
 import com.haulmont.cuba.web.widgets.CubaEnhancedTable.AggregationInputValueChangeContext;
+import com.haulmont.cuba.web.widgets.CubaEnhancedTable.CubaNoDataPanel;
 import com.haulmont.cuba.web.widgets.CubaUI;
 import com.haulmont.cuba.web.widgets.compatibility.CubaValueChangeEvent;
 import com.haulmont.cuba.web.widgets.data.AggregationContainer;
@@ -199,6 +200,8 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
     protected com.vaadin.v7.ui.Table.ColumnGenerator VALUE_PROVIDER_GENERATOR =
             (source, itemId, columnId) -> formatCellValue(itemId, columnId, null);
+
+    protected NoDataPanel noDataPanel;
 
     protected WebAbstractTable() {
     }
@@ -3206,38 +3209,25 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     }
 
     @Override
-    public void showNoDataPanel(boolean show) {
+    public void setNoDataPanel(NoDataPanel panel) {
+        this.noDataPanel = panel;
 
+        CubaNoDataPanel cubaNoDataPanel = null;
+        if (panel != null) {
+            cubaNoDataPanel = new CubaNoDataPanel(panel.getNoDataMessage(),
+                    panel.getNoDataLinkMessage(), panel.isHtmlEnabled());
+
+            Consumer<NoDataLinkClickEvent> handler = panel.getNoDataLinkClickHandler();
+            if (handler != null) {
+                cubaNoDataPanel.setNoDataLinkClickHandler(() -> handler.accept(new NoDataLinkClickEvent(this)));
+            }
+        }
+        component.setNoDataPanel(cubaNoDataPanel);
     }
 
     @Override
-    public boolean isNoDataPanelShown() {
-        return false;
-    }
-
-    @Override
-    public void setNoDataMessage(String message) {
-
-    }
-
-    @Override
-    public String getNoDataMessage() {
-        return null;
-    }
-
-    @Override
-    public void setNoDataLinkMessage(String message) {
-
-    }
-
-    @Override
-    public String getNoDataLinkMessage() {
-        return null;
-    }
-
-    @Override
-    public void setNoDataLinkClickHandler(Consumer<NoDataLinkClickEvent> clickHandler) {
-
+    public NoDataPanel getNoDataPanel() {
+        return noDataPanel;
     }
 
     protected static class InstalledStyleProvider implements StyleProvider {
