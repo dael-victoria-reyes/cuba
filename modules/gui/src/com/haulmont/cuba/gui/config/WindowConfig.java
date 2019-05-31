@@ -442,6 +442,19 @@ public class WindowConfig {
     }
 
     /**
+     * Loads screen class to put it into classpath.
+     * <p>
+     * Intended to hot-deploy {@link UiController} screens.
+     *
+     * @param className the fully qualified name of the screen class to load
+     */
+    public void loadScreenClass(String className) {
+        scripting.loadClassNN(className);
+
+        reset();
+    }
+
+    /**
      * Make the config to reload screens on next request.
      */
     public void reset() {
