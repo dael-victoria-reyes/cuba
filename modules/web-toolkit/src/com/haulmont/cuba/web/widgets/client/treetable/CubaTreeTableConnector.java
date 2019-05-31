@@ -244,6 +244,15 @@ public class CubaTreeTableConnector extends TreeTableConnector {
         if (arow != null) {
             getWidget().updateAggregationRow(arow);
         }
+
+        boolean showNoDataPanel = uidl.getBooleanAttribute("showNoDataPanel");
+        getWidget().showNoDataPanel(showNoDataPanel);
+        if (showNoDataPanel) {
+            getWidget()._delegate.noDataPanel.setNoDataMessage(getState().noDataMessage);
+            getWidget()._delegate.noDataPanel.setNoDataLinkMessage(getState().noDataLinkMessage);
+            getWidget()._delegate.noDataPanel.setNoDataLinkShortcut(getState().noDataLinkShortcut);
+            getWidget()._delegate.noDataPanel.setLinkClickHandler(getWidget()._delegate.noDataPanelLinkClickHandler);
+        }
     }
 
     @Override
@@ -277,6 +286,8 @@ public class CubaTreeTableConnector extends TreeTableConnector {
         getWidget()._delegate.totalAggregationInputHandler = (columnKey, value, isFocused) -> {
             getRpcProxy(CubaTableServerRpc.class).onAggregationTotalInputChange(columnKey, value, isFocused);
         };
+
+        getWidget()._delegate.noDataPanelLinkClickHandler = () -> getRpcProxy(CubaTableServerRpc.class).onNoDataLinkClick();
     }
 
     @Override
