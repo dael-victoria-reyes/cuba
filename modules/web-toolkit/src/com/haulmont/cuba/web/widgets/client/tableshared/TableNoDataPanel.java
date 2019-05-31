@@ -8,27 +8,32 @@ package com.haulmont.cuba.web.widgets.client.tableshared;
 import com.google.gwt.dom.client.*;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
-import com.vaadin.client.UIDL;
 
 public class TableNoDataPanel implements EventListener {
 
     protected Runnable linkClickHandler;
 
     protected DivElement container;
-    protected SpanElement messageLabel;
-    protected DivElement linkMessageLabel;
+    protected DivElement messageBox;
+    protected DivElement messageLabel;
+    protected SpanElement linkMessageLabel;
 
     public TableNoDataPanel() {
         container = Document.get().createDivElement();
         container.setClassName("c-table-nodata-panel");
 
-        messageLabel = Document.get().createSpanElement();
-        messageLabel.setClassName("c-table-nodata-panel-message");
-        container.appendChild(messageLabel);
+        messageBox = Document.get().createDivElement();
+        messageBox.setClassName("c-table-nodata-panel-message-box");
 
-        linkMessageLabel = Document.get().createDivElement();
-        linkMessageLabel.setClassName("c-table-nodata-panel-link");
-        container.appendChild(linkMessageLabel);
+        messageLabel = Document.get().createDivElement();
+        messageLabel.setClassName("c-table-nodata-panel-message");
+        messageBox.appendChild(messageLabel);
+
+        linkMessageLabel = Document.get().createSpanElement();
+        linkMessageLabel.setClassName("c-table-nodata-panel-link v-button-link");
+        messageBox.appendChild(linkMessageLabel);
+
+        container.appendChild(messageBox);
 
         Event.sinkEvents(container, Event.ONCLICK);
         Event.setEventListener(container, this);

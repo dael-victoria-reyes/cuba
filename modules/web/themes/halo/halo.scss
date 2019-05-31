@@ -96,6 +96,7 @@
 @import "app/table-presentations";
 @import "app/table-paging";
 @import "app/table-showlink";
+@import "app/table-nodata-panel";
 @import "app/app-menu";
 @import "app/app-window";
 @import "app/app-scrollbar";
@@ -200,6 +201,7 @@
   @include cuba-generic-filter;
   @include cuba-table-presentations;
   @include halo-cuba-table-paging;
+  @include cuba-table-nodata-panel;
   @include cuba-table-showlink;
   @include cuba-menubar;
   @include cuba-application-window;
