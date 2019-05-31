@@ -107,6 +107,7 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
         loadTextSelectionEnabled(resultComponent, element);
         loadResponsive(resultComponent, element);
         loadCss(resultComponent, element);
+        loadShowNoDataPanel(resultComponent, element);
 
         Element columnsElement = element.element("columns");
         Element rowsElement = element.element("rows");
@@ -751,5 +752,15 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
             }
         }
         return null;
+    }
+
+    protected void loadShowNoDataPanel(Table table, Element element) {
+        String showNoDataPanel = element.attributeValue("showNoDataPanel");
+        if (showNoDataPanel == null) {
+            // init with true by default
+            table.showNoDataPanel(true);
+        } else if (StringUtils.isNotBlank(showNoDataPanel)) {
+            table.showNoDataPanel(Boolean.parseBoolean(showNoDataPanel));
+        }
     }
 }

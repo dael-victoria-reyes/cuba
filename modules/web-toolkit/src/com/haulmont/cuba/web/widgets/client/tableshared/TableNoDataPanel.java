@@ -16,7 +16,9 @@ public class TableNoDataPanel implements EventListener {
     protected DivElement container;
     protected DivElement messageBox;
     protected DivElement messageLabel;
+
     protected SpanElement linkMessageLabel;
+    protected SpanElement linkShortcutLabel;
 
     public TableNoDataPanel() {
         container = Document.get().createDivElement();
@@ -29,11 +31,13 @@ public class TableNoDataPanel implements EventListener {
         messageLabel.setClassName("c-table-nodata-panel-message");
         messageBox.appendChild(messageLabel);
 
-        linkMessageLabel = Document.get().createSpanElement();
-        linkMessageLabel.setClassName("c-table-nodata-panel-link v-button-link");
-        messageBox.appendChild(linkMessageLabel);
-
         container.appendChild(messageBox);
+
+        linkMessageLabel = Document.get().createSpanElement();
+        linkMessageLabel.setClassName("c-table-nodata-panel-link-message v-button-link");
+
+        linkShortcutLabel = Document.get().createSpanElement();
+        linkShortcutLabel.setClassName("c-table-nodata-panel-link-shortcut");
 
         Event.sinkEvents(container, Event.ONCLICK);
         Event.setEventListener(container, this);
@@ -44,7 +48,25 @@ public class TableNoDataPanel implements EventListener {
     }
 
     public void setNoDataLinkMessage(String message) {
-        linkMessageLabel.setInnerText(message);
+        if (message == null || message.isEmpty()) {
+            linkMessageLabel.removeFromParent();
+        } else {
+            linkMessageLabel.setInnerText(message);
+            if (!isAddedToMessageBox(linkMessageLabel)) {
+                messageBox.appendChild(linkMessageLabel);
+            }
+        }
+    }
+
+    public void setNoDataLinkShortcut(String shortcut) {
+        if (shortcut == null || shortcut.isEmpty()) {
+            linkShortcutLabel.removeFromParent();
+        } else {
+            linkShortcutLabel.setInnerText(shortcut);
+            if (!isAddedToMessageBox(linkShortcutLabel)) {
+                messageBox.appendChild(linkShortcutLabel);
+            }
+        }
     }
 
     public void setLinkClickHandler(Runnable linkClickHandler) {
@@ -62,9 +84,13 @@ public class TableNoDataPanel implements EventListener {
 
             if (linkMessageLabel.isOrHasChild(fromElement)
                     && linkClickHandler != null
-                    && !linkMessageLabel.getInnerText().isEmpty()) {
+                    && isAddedToMessageBox(linkMessageLabel)) {
                 linkClickHandler.run();
             }
         }
+    }
+
+    protected boolean isAddedToMessageBox(Element element) {
+        return element.getParentElement().equals(messageBox);
     }
 }

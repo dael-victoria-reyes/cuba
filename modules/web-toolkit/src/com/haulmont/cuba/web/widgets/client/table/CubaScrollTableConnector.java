@@ -234,6 +234,7 @@ public class CubaScrollTableConnector extends TableConnector {
         if (showNoDataPanel) {
             getWidget()._delegate.noDataPanel.setNoDataMessage(getState().noDataMessage);
             getWidget()._delegate.noDataPanel.setNoDataLinkMessage(getState().noDataLinkMessage);
+            getWidget()._delegate.noDataPanel.setNoDataLinkShortcut(getState().noDataLinkShortcut);
             getWidget()._delegate.noDataPanel.setLinkClickHandler(getWidget()._delegate.noDataPanelLinkClickHandler);
         }
     }

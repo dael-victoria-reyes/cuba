@@ -71,4 +71,7 @@ public class CubaTableState extends TableState {
 
     @NoLayout
     public String noDataLinkMessage;
+
+    @NoLayout
+    public String noDataLinkShortcut;
 }

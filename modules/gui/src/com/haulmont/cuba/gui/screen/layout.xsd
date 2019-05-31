@@ -1161,6 +1161,7 @@
         <xs:attribute name="presentations" type="xs:boolean"/>
         <xs:attribute name="contextMenuEnabled" type="xs:boolean"/>
         <xs:attribute name="multiLineCells" type="xs:boolean"/>
+        <xs:attribute name="showNoDataPanel" type="xs:boolean"/>
     </xs:attributeGroup>
 
     <xs:attributeGroup name="isLayoutComponent">

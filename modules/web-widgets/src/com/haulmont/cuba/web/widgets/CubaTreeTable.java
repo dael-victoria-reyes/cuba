@@ -1053,6 +1053,11 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
     }
 
     @Override
+    public void setNoDataLinkShortcut(String message) {
+
+    }
+
+    @Override
     public void setNoDataLinkClickHandler(Runnable handler) {
 
     }

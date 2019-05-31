@@ -164,7 +164,7 @@ public interface CubaEnhancedTable extends AggregationContainer {
 
     void setNoDataMessage(String message);
     void setNoDataLinkMessage(String message);
-
+    void setNoDataLinkShortcut(String message);
     void setNoDataLinkClickHandler(Runnable handler);
 
     interface CellValueFormatter {

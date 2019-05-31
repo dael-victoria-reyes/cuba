@@ -28,9 +28,6 @@
 
       .v-button-link {
         color: valo-font-color($v-focus-color, 0.40);
-        text-align: center;
-        user-select: none;
-        vertical-align: middle;
       }
     }
 
@@ -50,7 +47,29 @@
       color: valo-font-color($v-font-color, 0.50);
       display: inline-block;
       user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
       vertical-align: middle;
       width: 100%;
+    }
+
+    .c-table-nodata-panel-link-message {
+      text-align: center;
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      vertical-align: middle;
+    }
+
+    .c-table-nodata-panel-link-shortcut {
+      text-align: center;
+      user-select: none;
+      -moz-user-select: none;
+      -webkit-user-select: none;
+      -ms-user-select: none;
+      vertical-align: middle;
+      color: valo-font-color($v-font-color, 0.50);
     }
  }

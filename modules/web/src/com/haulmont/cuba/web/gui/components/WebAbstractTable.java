@@ -33,6 +33,7 @@ import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.entity.LocaleHelper;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Notifications;
+import com.haulmont.cuba.gui.actions.list.CreateAction;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.LookupComponent.LookupSelectionChangeNotifier;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
@@ -1062,12 +1063,6 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         componentComposition.setHeightUndefined();
         componentComposition.setWidthUndefined();
 
-        component.setNoDataMessage(messages.getMainMessage("table.noDataPanelMessage.emptyContainer"));
-        component.setNoDataLinkMessage(messages.getMainMessage("table.noDataPanelLinkMessage.emptyContainer"));
-        component.setNoDataLinkClickHandler(() -> {
-
-        });
-
         setClientCaching();
     }
 
@@ -1420,6 +1415,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
             if (tableItems instanceof EmptyTableItems) {
                 component.setNoDataMessage(messages.getMainMessage("table.noDataPanelMessage.nullContainer"));
                 component.setNoDataLinkMessage(null);
+                component.setNoDataLinkShortcut(null);
             }
 
             refreshActionsState();
@@ -3219,6 +3215,10 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
     @Override
     public void showNoDataPanel(boolean show) {
+        if (show) {
+            initNoDataPanel();
+        }
+
         component.showNoDataPanel(show);
     }
 
@@ -3299,5 +3299,39 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         screenContext.getNotifications().create(Notifications.NotificationType.TRAY)
                 .withDescription(message)
                 .show();
+    }
+
+    protected void initNoDataPanel() {
+        component.setNoDataMessage(messages.getMainMessage("table.noDataPanelMessage.emptyContainer"));
+
+        for (Action action : getActions()) {
+            if (action instanceof CreateAction) {
+                CreateAction createAction = (CreateAction) action;
+                if (!createAction.getTarget().equals(this)) {
+                    continue;
+                }
+
+                component.setNoDataLinkMessage(messages.getMainMessage("table.noDataPanelLinkMessage.emptyContainer"));
+                KeyCombination keyCombination = createAction.getShortcutCombination();
+                if (keyCombination != null) {
+                    String shortcut = keyCombination.format();
+                    component.setNoDataLinkShortcut("(" + shortcut + ")");
+                }
+
+                component.setNoDataLinkClickHandler(() -> {
+                    if (isNoDataPanelLinkEnabled(createAction)) {
+                        createAction.actionPerform(this);
+                    }
+                });
+
+                return;
+            }
+        }
+    }
+
+    protected boolean isNoDataPanelLinkEnabled(CreateAction createAction) {
+        return createAction.getTarget().equals(this)
+                && createAction.isEnabled()
+                && createAction.isEnabledByUiPermissions();
     }
 }

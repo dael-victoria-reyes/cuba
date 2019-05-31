@@ -956,6 +956,11 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
     }
 
     @Override
+    public void setNoDataLinkShortcut(String shortcut) {
+        getState().noDataLinkShortcut = shortcut;
+    }
+
+    @Override
     public void setNoDataLinkClickHandler(Runnable handler) {
         this.noDataLinkClickHandler = handler;
     }
