@@ -16,10 +16,23 @@
 
 package com.haulmont.cuba.web.widgets.client.grid;
 
+import com.vaadin.shared.annotations.NoLayout;
 import com.vaadin.shared.ui.grid.GridState;
 
 import java.util.Map;
 
 public class CubaGridState extends GridState {
     public Map<String, String> columnIds = null;
+
+    @NoLayout
+    public boolean showNoDataPanel = true;
+
+    @NoLayout
+    public String noDataMessage;
+
+    @NoLayout
+    public String noDataLinkMessage;
+
+    @NoLayout
+    public String noDataLinkShortcut;
 }

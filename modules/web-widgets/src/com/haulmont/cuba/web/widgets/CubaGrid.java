@@ -16,6 +16,7 @@
 
 package com.haulmont.cuba.web.widgets;
 
+import com.haulmont.cuba.web.widgets.client.grid.CubaGridServerRpc;
 import com.haulmont.cuba.web.widgets.client.grid.CubaGridState;
 import com.haulmont.cuba.web.widgets.grid.CubaEditorField;
 import com.haulmont.cuba.web.widgets.grid.CubaEditorImpl;
@@ -34,6 +35,16 @@ import java.util.function.Consumer;
 public class CubaGrid<T> extends Grid<T> implements CubaEnhancedGrid<T> {
 
     protected CubaGridEditorFieldFactory<T> editorFieldFactory;
+
+    protected Runnable noDataPanelLinkClickHandler;
+
+    public CubaGrid() {
+        registerRpc((CubaGridServerRpc) () -> {
+            if (noDataPanelLinkClickHandler != null) {
+                noDataPanelLinkClickHandler.run();
+            }
+        });
+    }
 
     @Override
     public void setGridSelectionModel(GridSelectionModel<T> model) {
@@ -112,5 +123,30 @@ public class CubaGrid<T> extends Grid<T> implements CubaEnhancedGrid<T> {
     @Override
     public void setBeforeRefreshHandler(Consumer<T> beforeRefreshHandler) {
         getDataCommunicator().setBeforeRefreshHandler(beforeRefreshHandler);
+    }
+
+    @Override
+    public void showNoDataPanel(boolean show) {
+        getState().showNoDataPanel = show;
+    }
+
+    @Override
+    public void setNoDataMessage(String message) {
+        getState().noDataMessage = message;
+    }
+
+    @Override
+    public void setNoDataLinkMessage(String message) {
+        getState().noDataLinkMessage = message;
+    }
+
+    @Override
+    public void setNoDataLinkShortcut(String shortcut) {
+        getState().noDataLinkShortcut = shortcut;
+    }
+
+    @Override
+    public void setNoDataLinkClickHandler(Runnable handler) {
+        this.noDataPanelLinkClickHandler = handler;
     }
 }

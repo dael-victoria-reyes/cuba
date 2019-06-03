@@ -1413,7 +1413,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
             }
 
             if (tableItems instanceof EmptyTableItems) {
-                component.setNoDataMessage(messages.getMainMessage("table.noDataPanelMessage.nullContainer"));
+                component.setNoDataMessage(messages.getMainMessage("noDataPanel.message.stubContainer"));
                 component.setNoDataLinkMessage(null);
                 component.setNoDataLinkShortcut(null);
             }
@@ -3302,7 +3302,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     }
 
     protected void initNoDataPanel() {
-        component.setNoDataMessage(messages.getMainMessage("table.noDataPanelMessage.emptyContainer"));
+        component.setNoDataMessage(messages.getMainMessage("noDataPanel.tableMessage.emptyContainer"));
 
         for (Action action : getActions()) {
             if (action instanceof CreateAction) {
@@ -3311,7 +3311,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
                     continue;
                 }
 
-                component.setNoDataLinkMessage(messages.getMainMessage("table.noDataPanelLinkMessage.emptyContainer"));
+                component.setNoDataLinkMessage(messages.getMainMessage("noDataPanel.link.emptyContainer"));
                 KeyCombination keyCombination = createAction.getShortcutCombination();
                 if (keyCombination != null) {
                     String shortcut = keyCombination.format();

@@ -17,6 +17,7 @@
 package com.haulmont.cuba.web.widgets.client.grid;
 
 import com.haulmont.cuba.web.widgets.CubaGrid;
+import com.vaadin.client.communication.StateChangeEvent;
 import com.vaadin.client.connectors.grid.GridConnector;
 import com.vaadin.client.widgets.Grid.Column;
 import com.vaadin.shared.ui.Connect;
@@ -38,6 +39,36 @@ public class CubaGridConnector extends GridConnector {
     }
 
     @Override
+    public void onStateChanged(StateChangeEvent event) {
+        super.onStateChanged(event);
+
+        if (event.hasPropertyChanged("showNoDataPanel")) {
+            getWidget().showNoDataPanel(getState().showNoDataPanel);
+            if (getState().showNoDataPanel) {
+                getWidget().getNoDataPanel().setLinkClickHandler(getWidget().noDataPanelLinkClickHandler);
+            }
+        }
+
+        if (event.hasPropertyChanged("noDataMessage")) {
+            if (getWidget().getNoDataPanel() != null) {
+                getWidget().getNoDataPanel().setNoDataMessage(getState().noDataMessage);
+            }
+        }
+
+        if (event.hasPropertyChanged("noDataLinkMessage")) {
+            if (getWidget().getNoDataPanel() != null) {
+                getWidget().getNoDataPanel().setNoDataLinkMessage(getState().noDataLinkMessage);
+            }
+        }
+
+        if (event.hasPropertyChanged("noDataLinkShortcut")) {
+            if (getWidget().getNoDataPanel() != null) {
+                getWidget().getNoDataPanel().setNoDataLinkShortcut(getState().noDataLinkShortcut);
+            }
+        }
+    }
+
+    @Override
     protected void updateColumns() {
         super.updateColumns();
 
@@ -55,5 +86,12 @@ public class CubaGridConnector extends GridConnector {
                 }
             }
         }
+    }
+
+    @Override
+    protected void init() {
+        super.init();
+
+        getWidget().noDataPanelLinkClickHandler = () -> getRpcProxy(CubaGridServerRpc.class).onNoDataPanelLinkClick();
     }
 }

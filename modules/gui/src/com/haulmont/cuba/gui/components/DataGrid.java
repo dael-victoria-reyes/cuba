@@ -2550,6 +2550,9 @@ public interface DataGrid<E extends Entity> extends ListComponent<E>, HasButtons
         return getAction(name);
     }
 
+    void showNoDataPanel(boolean show);
+    boolean isNoDataPanelShown();
+
     /**
      * A column in the DataGrid.
      */

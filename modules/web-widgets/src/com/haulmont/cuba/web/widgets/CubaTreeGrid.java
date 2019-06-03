@@ -125,4 +125,29 @@ public class CubaTreeGrid<T> extends TreeGrid<T> implements CubaEnhancedGrid<T> 
     public void setBeforeRefreshHandler(Consumer<T> beforeRefreshHandler) {
         getDataCommunicator().setBeforeRefreshHandler(beforeRefreshHandler);
     }
+
+    @Override
+    public void showNoDataPanel(boolean show) {
+
+    }
+
+    @Override
+    public void setNoDataMessage(String message) {
+
+    }
+
+    @Override
+    public void setNoDataLinkMessage(String message) {
+
+    }
+
+    @Override
+    public void setNoDataLinkShortcut(String shortcut) {
+
+    }
+
+    @Override
+    public void setNoDataLinkClickHandler(Runnable handler) {
+
+    }
 }

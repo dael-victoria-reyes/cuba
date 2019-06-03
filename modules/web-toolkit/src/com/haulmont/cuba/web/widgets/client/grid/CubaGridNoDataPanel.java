@@ -3,13 +3,16 @@
  * Use is subject to license terms, see http://www.cuba-platform.com/commercial-software-license for details.
  */
 
-package com.haulmont.cuba.web.widgets.client.tableshared;
+package com.haulmont.cuba.web.widgets.client.grid;
 
-import com.google.gwt.dom.client.*;
+import com.google.gwt.dom.client.DivElement;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.SpanElement;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
 
-public class TableNoDataPanel implements EventListener {
+public class CubaGridNoDataPanel implements EventListener {
 
     protected Runnable linkClickHandler;
 
@@ -20,24 +23,26 @@ public class TableNoDataPanel implements EventListener {
     protected SpanElement linkMessageLabel;
     protected SpanElement linkShortcutLabel;
 
-    public TableNoDataPanel() {
+    public CubaGridNoDataPanel() {
         container = Document.get().createDivElement();
-        container.setClassName("c-table-nodata-panel");
+        container.setClassName("c-datagrid-nodata-panel");
 
         messageBox = Document.get().createDivElement();
-        messageBox.setClassName("c-table-nodata-panel-message-box");
+        messageBox.setClassName("c-datagrid-nodata-panel-message-box");
 
         messageLabel = Document.get().createDivElement();
-        messageLabel.setClassName("c-table-nodata-panel-message");
+        messageLabel.setClassName("c-datagrid-nodata-panel-message");
         messageBox.appendChild(messageLabel);
 
-        container.appendChild(messageBox);
-
         linkMessageLabel = Document.get().createSpanElement();
-        linkMessageLabel.setClassName("c-table-nodata-panel-link-message v-button-link");
+        linkMessageLabel.setClassName("c-datagrid-nodata-panel-link-message v-button-link");
+        messageBox.appendChild(linkMessageLabel);
 
         linkShortcutLabel = Document.get().createSpanElement();
-        linkShortcutLabel.setClassName("c-table-nodata-panel-link-shortcut");
+        linkShortcutLabel.setClassName("c-datagrid-nodata-panel-link-shortcut");
+        messageBox.appendChild(linkShortcutLabel);
+
+        container.appendChild(messageBox);
 
         Event.sinkEvents(container, Event.ONCLICK);
         Event.setEventListener(container, this);
@@ -48,25 +53,11 @@ public class TableNoDataPanel implements EventListener {
     }
 
     public void setNoDataLinkMessage(String message) {
-        if (message == null || message.isEmpty()) {
-            linkMessageLabel.removeFromParent();
-        } else {
-            linkMessageLabel.setInnerText(message);
-            if (!isAddedToMessageBox(linkMessageLabel)) {
-                messageBox.appendChild(linkMessageLabel);
-            }
-        }
+        linkMessageLabel.setInnerText(message);
     }
 
     public void setNoDataLinkShortcut(String shortcut) {
-        if (shortcut == null || shortcut.isEmpty()) {
-            linkShortcutLabel.removeFromParent();
-        } else {
-            linkShortcutLabel.setInnerText(shortcut);
-            if (!isAddedToMessageBox(linkShortcutLabel)) {
-                messageBox.appendChild(linkShortcutLabel);
-            }
-        }
+        linkShortcutLabel.setInnerText(shortcut);
     }
 
     public void setLinkClickHandler(Runnable linkClickHandler) {

@@ -26,11 +26,13 @@ import com.haulmont.cuba.client.sys.PersistenceManagerClient;
 import com.haulmont.cuba.core.app.keyvalue.KeyValueMetaClass;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
+import com.haulmont.cuba.gui.actions.list.CreateAction;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
 import com.haulmont.cuba.gui.components.data.BindingState;
 import com.haulmont.cuba.gui.components.data.DataGridItems;
 import com.haulmont.cuba.gui.components.data.ValueSourceProvider;
+import com.haulmont.cuba.gui.components.data.datagrid.EmptyDataGridItems;
 import com.haulmont.cuba.gui.components.data.meta.ContainerDataUnit;
 import com.haulmont.cuba.gui.components.data.meta.DatasourceDataUnit;
 import com.haulmont.cuba.gui.components.data.meta.EntityDataGridItems;
@@ -139,6 +141,7 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
 
     protected static final String HAS_TOP_PANEL_STYLE_NAME = "has-top-panel";
     protected static final String TEXT_SELECTION_ENABLED_STYLE = "text-selection-enabled";
+    protected static final String NO_DATA_PANEL_LINK_HIDDEN = "nodata-panel-link-hidden";
 
     private static final Logger log = LoggerFactory.getLogger(WebAbstractDataGrid.class);
 
@@ -170,6 +173,7 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
     protected boolean columnsCollapsingAllowed = true;
     protected boolean textSelectionEnabled = false;
     protected boolean editorCrossFieldValidate = true;
+    protected boolean showNoDataPanel = true;
 
     protected Action itemClickAction;
     protected Action enterPressAction;
@@ -891,6 +895,7 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
             component.setColumnOrder(getColumnOrder());
 
             initShowInfoAction();
+            initNoDataPanel();
 
             if (rowsCount != null) {
                 rowsCount.setRowsCountTarget(this);
@@ -2922,6 +2927,16 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
         component.setTabIndex(tabIndex);
     }
 
+    @Override
+    public void showNoDataPanel(boolean show) {
+        this.showNoDataPanel = show;
+    }
+
+    @Override
+    public boolean isNoDataPanelShown() {
+        return showNoDataPanel;
+    }
+
     protected void enableCrossFieldValidationHandling(boolean enable) {
         if (isEditorEnabled()) {
             ((CubaEditorImpl<E>) component.getEditor()).setCrossFieldValidationHandler(
@@ -2975,6 +2990,60 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
         }
 
         return joinedStyle != null ? joinedStyle.toString() : null;
+    }
+
+    protected void initNoDataPanel() {
+        if (!showNoDataPanel || this.dataBinding == null) {
+            component.showNoDataPanel(false);
+            return;
+        }
+
+        dataBinding.addDataProviderListener(event
+                -> component.showNoDataPanel(showNoDataPanel && dataBinding.getDataGridItems().size() == 0));
+
+        CreateAction createAction = (CreateAction) getActions().stream()
+                .filter(action -> action instanceof CreateAction
+                        && ((CreateAction) action).getTarget().equals(this))
+                .findFirst()
+                .orElse(null);
+
+        component.setNoDataMessage(messages.getMainMessage("noDataPanel.dataGridMessage.emptyContainer"));
+        if (isStubContainer()) {
+            component.setNoDataMessage(messages.getMainMessage("noDataPanel.message.stubContainer"));
+        }
+        component.setNoDataLinkMessage(messages.getMainMessage("noDataPanel.link.emptyContainer"));
+
+        if (createAction != null) {
+            KeyCombination keyCombination = createAction.getShortcutCombination();
+            if (keyCombination != null) {
+                String shortcut = keyCombination.format();
+                component.setNoDataLinkShortcut("(" + shortcut + ")");
+            }
+
+            component.setNoDataLinkClickHandler(() -> {
+                if (isNoDataPanelLinkEnabled(createAction)) {
+                    createAction.actionPerform(this);
+                }
+            });
+        }
+
+        if ((createAction == null || isStubContainer())) {
+            if (!getStyleName().contains(NO_DATA_PANEL_LINK_HIDDEN)) {
+                addStyleName(NO_DATA_PANEL_LINK_HIDDEN);
+            }
+        } else {
+            removeStyleName(NO_DATA_PANEL_LINK_HIDDEN);
+        }
+    }
+
+    protected boolean isStubContainer() {
+        return getItems() instanceof EmptyDataGridItems;
+    }
+
+    protected boolean isNoDataPanelLinkEnabled(CreateAction createAction) {
+        return createAction.getTarget().equals(this)
+                && createAction.isEnabled()
+                && createAction.isEnabledByUiPermissions();
     }
 
     protected class CellStyleGeneratorAdapter<T extends E> implements StyleGenerator<T> {
