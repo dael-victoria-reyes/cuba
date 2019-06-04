@@ -1,5 +1,6 @@
 package com.haulmont.cuba.web.widgets;
 
+import com.haulmont.cuba.web.widgets.client.grid.CubaGridClientRpc;
 import com.haulmont.cuba.web.widgets.client.treegrid.CubaTreeGridServerRpc;
 import com.haulmont.cuba.web.widgets.client.treegrid.CubaTreeGridState;
 import com.haulmont.cuba.web.widgets.data.EnhancedHierarchicalDataProvider;
@@ -140,6 +141,11 @@ public class CubaTreeGrid<T> extends TreeGrid<T> implements CubaEnhancedGrid<T> 
     @Override
     public void showNoDataPanel(boolean show) {
         getState().showNoDataPanel = show;
+    }
+
+    @Override
+    public void showNoDataPanelLink(boolean show) {
+        getRpcProxy(CubaGridClientRpc.class).showNoDataPanelLink(show);
     }
 
     @Override

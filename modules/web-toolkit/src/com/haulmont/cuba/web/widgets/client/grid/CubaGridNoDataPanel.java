@@ -85,4 +85,18 @@ public class CubaGridNoDataPanel implements EventListener {
         Element parent = element.getParentElement();
         return parent != null && parent.equals(messageBox);
     }
+
+    public void showNoDataPanelLink(boolean show) {
+        if (show) {
+            if (!messageBox.equals(linkMessageLabel.getParentElement())) {
+                messageBox.appendChild(linkMessageLabel);
+            }
+            if (!messageBox.equals(linkShortcutLabel.getParentElement())) {
+                messageBox.appendChild(linkShortcutLabel);
+            }
+        } else {
+            linkMessageLabel.removeFromParent();
+            linkShortcutLabel.removeFromParent();
+        }
+    }
 }

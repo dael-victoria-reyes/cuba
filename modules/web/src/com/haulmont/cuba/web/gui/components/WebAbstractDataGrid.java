@@ -141,7 +141,6 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
 
     protected static final String HAS_TOP_PANEL_STYLE_NAME = "has-top-panel";
     protected static final String TEXT_SELECTION_ENABLED_STYLE = "text-selection-enabled";
-    protected static final String NO_DATA_PANEL_LINK_HIDDEN = "nodata-panel-link-hidden";
 
     private static final Logger log = LoggerFactory.getLogger(WebAbstractDataGrid.class);
 
@@ -3002,21 +3001,18 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
         }
 
         if (dataBinding == null) {
-            if (!getStyleName().contains(NO_DATA_PANEL_LINK_HIDDEN)) {
-                addStyleName(NO_DATA_PANEL_LINK_HIDDEN);
-            }
             component.setNoDataMessage(messages.getMainMessage("noDataPanel.message.stubContainer"));
             component.showNoDataPanel(true);
+            component.showNoDataPanelLink(false);
             return;
         }
 
-        dataBinding.addDataProviderListener(event
-                -> component.showNoDataPanel(showNoDataPanel && dataBinding.getDataGridItems().size() == 0));
+        dataBinding.addDataProviderListener(event ->
+                component.showNoDataPanel(showNoDataPanel && dataBinding.getDataGridItems().size() == 0));
 
-        component.setNoDataMessage(messages.getMainMessage("noDataPanel.dataGridMessage.emptyContainer"));
-        if (isEmptyItemsContainer()) {
-            component.setNoDataMessage(messages.getMainMessage("noDataPanel.message.stubContainer"));
-        }
+        component.setNoDataMessage(isEmptyItemsContainer()
+                ? messages.getMainMessage("noDataPanel.message.stubContainer")
+                : messages.getMainMessage("noDataPanel.dataGridMessage.emptyContainer"));
         component.setNoDataLinkMessage(messages.getMainMessage("noDataPanel.link.emptyContainer"));
 
         CreateAction createAction = (CreateAction) getActions().stream()
@@ -3038,14 +3034,7 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
             });
         }
 
-        if ((createAction == null || isEmptyItemsContainer())) {
-            if (!getStyleName().contains(NO_DATA_PANEL_LINK_HIDDEN)) {
-                addStyleName(NO_DATA_PANEL_LINK_HIDDEN);
-            }
-        } else {
-            removeStyleName(NO_DATA_PANEL_LINK_HIDDEN);
-        }
-
+        component.showNoDataPanelLink(createAction != null && !isEmptyItemsContainer());
         component.showNoDataPanel(showNoDataPanel && dataBinding.getDataGridItems().size() == 0);
     }
 

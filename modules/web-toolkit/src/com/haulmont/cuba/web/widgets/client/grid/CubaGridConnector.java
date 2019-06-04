@@ -28,6 +28,14 @@ import java.util.List;
 @Connect(CubaGrid.class)
 public class CubaGridConnector extends GridConnector {
 
+    public CubaGridConnector() {
+        registerRpc(CubaGridClientRpc.class, (CubaGridClientRpc) show -> {
+            if (getWidget().getNoDataPanel() != null) {
+                getWidget().getNoDataPanel().showNoDataPanelLink(show);
+            }
+        });
+    }
+
     @Override
     public CubaGridWidget getWidget() {
         return (CubaGridWidget) super.getWidget();

@@ -1038,6 +1038,11 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
     }
 
     @Override
+    public void showNoDataPanelLink(boolean show) {
+        getRpcProxy(CubaTableClientRpc.class).showNoDataPanelLink(show);
+    }
+
+    @Override
     public void setNoDataMessage(String message) {
         getState().noDataMessage = message;
     }

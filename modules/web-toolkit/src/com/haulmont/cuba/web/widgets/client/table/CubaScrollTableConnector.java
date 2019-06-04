@@ -65,6 +65,13 @@ public class CubaScrollTableConnector extends TableConnector {
             public void requestFocus(String itemKey, String columnKey) {
                 getWidget().requestFocus(itemKey, columnKey);
             }
+
+            @Override
+            public void showNoDataPanelLink(boolean show) {
+                if (getWidget()._delegate.noDataPanel != null) {
+                    getWidget()._delegate.noDataPanel.showNoDataPanelLink(show);
+                }
+            }
         });
     }
 

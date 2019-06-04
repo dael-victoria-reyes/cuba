@@ -160,6 +160,7 @@ public interface CubaEnhancedTable extends AggregationContainer {
     Object getItemByRowKey(String rowKey);
 
     void showNoDataPanel(boolean show);
+    void showNoDataPanelLink(boolean show);
     void setNoDataMessage(String message);
     void setNoDataLinkMessage(String message);
     void setNoDataLinkShortcut(String message);

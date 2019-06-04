@@ -32,6 +32,8 @@ public interface CubaEnhancedGrid<T> {
 
     void showNoDataPanel(boolean show);
 
+    void showNoDataPanelLink(boolean show);
+
     void setNoDataMessage(String message);
 
     void setNoDataLinkMessage(String message);

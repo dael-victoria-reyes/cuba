@@ -16,6 +16,7 @@
 
 package com.haulmont.cuba.web.widgets;
 
+import com.haulmont.cuba.web.widgets.client.grid.CubaGridClientRpc;
 import com.haulmont.cuba.web.widgets.client.grid.CubaGridServerRpc;
 import com.haulmont.cuba.web.widgets.client.grid.CubaGridState;
 import com.haulmont.cuba.web.widgets.grid.CubaEditorField;
@@ -128,6 +129,11 @@ public class CubaGrid<T> extends Grid<T> implements CubaEnhancedGrid<T> {
     @Override
     public void showNoDataPanel(boolean show) {
         getState().showNoDataPanel = show;
+    }
+
+    @Override
+    public void showNoDataPanelLink(boolean show) {
+        getRpcProxy(CubaGridClientRpc.class).showNoDataPanelLink(show);
     }
 
     @Override

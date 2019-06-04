@@ -937,6 +937,11 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
     }
 
     @Override
+    public void showNoDataPanelLink(boolean show) {
+        getRpcProxy(CubaTableClientRpc.class).showNoDataPanelLink(show);
+    }
+
+    @Override
     public void setNoDataMessage(String message) {
         getState().noDataMessage = message;
     }
