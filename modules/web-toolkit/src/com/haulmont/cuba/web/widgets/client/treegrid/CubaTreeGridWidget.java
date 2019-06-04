@@ -4,6 +4,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.client.ui.Widget;
 import com.haulmont.cuba.web.widgets.client.grid.CubaEditorEventHandler;
+import com.haulmont.cuba.web.widgets.client.grid.CubaGridNoDataPanel;
 import com.haulmont.cuba.web.widgets.client.grid.HasClickSettings;
 import com.vaadin.client.WidgetUtil;
 import com.vaadin.client.renderers.Renderer;
@@ -23,6 +24,9 @@ public class CubaTreeGridWidget extends TreeGrid {
     public static final String CUBA_ID_COLUMN_HIDING_TOGGLE_PREFIX = "cc_";
 
     protected Map<Column<?, JsonObject>, String> columnIds = null;
+
+    protected CubaGridNoDataPanel noDataPanel;
+    protected Runnable noDataPanelLinkClickHandler;
 
     public Map<Column<?, JsonObject>, String> getColumnIds() {
         return columnIds;
@@ -44,6 +48,28 @@ public class CubaTreeGridWidget extends TreeGrid {
         if (columnIds != null) {
             columnIds.remove(column);
         }
+    }
+
+    public void showNoDataPanel(boolean show) {
+        if (show) {
+            if (noDataPanel == null) {
+                noDataPanel = new CubaGridNoDataPanel();
+            }
+
+            Element wrapper = getEscalator().getTableWrapper();
+            Element panelParent = noDataPanel.getElement().getParentElement();
+
+            if (panelParent == null || !panelParent.equals(wrapper)) {
+                wrapper.appendChild(noDataPanel.getElement());
+            }
+        } else if (noDataPanel != null) {
+            noDataPanel.getElement().removeFromParent();
+            noDataPanel = null;
+        }
+    }
+
+    public CubaGridNoDataPanel getNoDataPanel() {
+        return noDataPanel;
     }
 
     @Override

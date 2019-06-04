@@ -45,22 +45,23 @@ public class CubaGridConnector extends GridConnector {
         if (event.hasPropertyChanged("showNoDataPanel")) {
             getWidget().showNoDataPanel(getState().showNoDataPanel);
             if (getState().showNoDataPanel) {
+                // as noDataPanel can be recreated set all messages
+                getWidget().getNoDataPanel().setNoDataMessage(getState().noDataMessage);
+                getWidget().getNoDataPanel().setNoDataLinkMessage(getState().noDataLinkMessage);
+                getWidget().getNoDataPanel().setNoDataLinkShortcut(getState().noDataLinkShortcut);
                 getWidget().getNoDataPanel().setLinkClickHandler(getWidget().noDataPanelLinkClickHandler);
             }
         }
-
         if (event.hasPropertyChanged("noDataMessage")) {
             if (getWidget().getNoDataPanel() != null) {
                 getWidget().getNoDataPanel().setNoDataMessage(getState().noDataMessage);
             }
         }
-
         if (event.hasPropertyChanged("noDataLinkMessage")) {
             if (getWidget().getNoDataPanel() != null) {
                 getWidget().getNoDataPanel().setNoDataLinkMessage(getState().noDataLinkMessage);
             }
         }
-
         if (event.hasPropertyChanged("noDataLinkShortcut")) {
             if (getWidget().getNoDataPanel() != null) {
                 getWidget().getNoDataPanel().setNoDataLinkShortcut(getState().noDataLinkShortcut);

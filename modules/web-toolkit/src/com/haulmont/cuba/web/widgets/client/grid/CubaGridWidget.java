@@ -66,6 +66,28 @@ public class CubaGridWidget extends Grid<JsonObject> {
         }
     }
 
+    public void showNoDataPanel(boolean show) {
+        if (show) {
+            if (noDataPanel == null) {
+                noDataPanel = new CubaGridNoDataPanel();
+            }
+
+            Element wrapper = getEscalator().getTableWrapper();
+            Element panelParent = noDataPanel.getElement().getParentElement();
+
+            if (panelParent == null || !panelParent.equals(wrapper)) {
+                wrapper.appendChild(noDataPanel.getElement());
+            }
+        } else if (noDataPanel != null) {
+            noDataPanel.getElement().removeFromParent();
+            noDataPanel = null;
+        }
+    }
+
+    public CubaGridNoDataPanel getNoDataPanel() {
+        return noDataPanel;
+    }
+
     @Override
     protected Editor<JsonObject> createEditor() {
         Editor<JsonObject> editor = super.createEditor();
@@ -114,28 +136,6 @@ public class CubaGridWidget extends Grid<JsonObject> {
     @Override
     protected EscalatorUpdater createFooterUpdater() {
         return new CubaStaticSectionUpdater(getFooter(), getEscalator().getFooter());
-    }
-
-    public void showNoDataPanel(boolean show) {
-        if (show) {
-            if (noDataPanel == null) {
-                noDataPanel = new CubaGridNoDataPanel();
-            }
-
-            Element wrapper = getEscalator().getTableWrapper();
-            Element panelParent = noDataPanel.getElement().getParentElement();
-
-            if (panelParent == null || !panelParent.equals(wrapper)) {
-                wrapper.appendChild(noDataPanel.getElement());
-            }
-        } else if (noDataPanel != null) {
-            noDataPanel.getElement().removeFromParent();
-            // do not set null to noDataPanel element
-        }
-    }
-
-    public CubaGridNoDataPanel getNoDataPanel() {
-        return noDataPanel;
     }
 
     @Override

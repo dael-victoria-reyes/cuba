@@ -1,5 +1,6 @@
 package com.haulmont.cuba.web.widgets;
 
+import com.haulmont.cuba.web.widgets.client.treegrid.CubaTreeGridServerRpc;
 import com.haulmont.cuba.web.widgets.client.treegrid.CubaTreeGridState;
 import com.haulmont.cuba.web.widgets.data.EnhancedHierarchicalDataProvider;
 import com.haulmont.cuba.web.widgets.grid.CubaEditorField;
@@ -18,6 +19,16 @@ import java.util.function.Consumer;
 public class CubaTreeGrid<T> extends TreeGrid<T> implements CubaEnhancedGrid<T> {
 
     protected CubaGridEditorFieldFactory<T> editorFieldFactory;
+
+    protected Runnable noDataPanelLinkClickHandler;
+
+    public CubaTreeGrid() {
+        registerRpc((CubaTreeGridServerRpc) () -> {
+            if (noDataPanelLinkClickHandler != null) {
+                noDataPanelLinkClickHandler.run();
+            }
+        });
+    }
 
     @Override
     public void setGridSelectionModel(GridSelectionModel<T> model) {
@@ -128,26 +139,26 @@ public class CubaTreeGrid<T> extends TreeGrid<T> implements CubaEnhancedGrid<T> 
 
     @Override
     public void showNoDataPanel(boolean show) {
-
+        getState().showNoDataPanel = show;
     }
 
     @Override
     public void setNoDataMessage(String message) {
-
+        getState().noDataMessage = message;
     }
 
     @Override
     public void setNoDataLinkMessage(String message) {
-
+        getState().noDataLinkMessage = message;
     }
 
     @Override
     public void setNoDataLinkShortcut(String shortcut) {
-
+        getState().noDataLinkShortcut = shortcut;
     }
 
     @Override
     public void setNoDataLinkClickHandler(Runnable handler) {
-
+        this.noDataPanelLinkClickHandler = handler;
     }
 }
