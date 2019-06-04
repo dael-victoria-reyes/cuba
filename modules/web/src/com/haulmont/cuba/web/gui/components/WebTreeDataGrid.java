@@ -264,7 +264,7 @@ public class WebTreeDataGrid<E extends Entity> extends WebAbstractDataGrid<CubaT
     }
 
     @Override
-    protected boolean isStubContainer() {
+    protected boolean isEmptyItemsContainer() {
         return getItems() instanceof EmptyTreeDataGridItems;
     }
 }

@@ -124,6 +124,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
     public static final String BOOLEAN_CELL_STYLE_TRUE = "boolean-cell boolean-cell-true";
     public static final String BOOLEAN_CELL_STYLE_FALSE = "boolean-cell boolean-cell-false";
+    protected static final String NO_DATA_PANEL_LINK_HIDDEN = "nodata-panel-link-hidden";
 
     protected static final com.vaadin.v7.ui.Table.ColumnGenerator VOID_COLUMN_GENERATOR =
             (source, itemId, columnId) -> null;
@@ -194,6 +195,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     protected Map<String, Printable> printables; // lazily initialized Map
 
     protected boolean settingsEnabled = true;
+    protected boolean showNoDataPanel = true;
 
     protected TableDataContainer<E> dataBinding;
 
@@ -1064,6 +1066,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         componentComposition.setWidthUndefined();
 
         setClientCaching();
+        updateNoDataPanel();
     }
 
     protected void onAfterUnregisterComponent(Component component) {
@@ -1422,6 +1425,8 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
             setUiTestId(tableItems);
         }
+
+        updateNoDataPanel();
     }
 
     protected void setUiTestId(TableItems<E> items) {
@@ -3215,16 +3220,12 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
     @Override
     public void showNoDataPanel(boolean show) {
-        if (show) {
-            initNoDataPanel();
-        }
-
-        component.showNoDataPanel(show);
+        this.showNoDataPanel = show;
     }
 
     @Override
     public boolean isNoDataPanelShown() {
-        return component.isNoDataPanelShown();
+        return showNoDataPanel;
     }
 
     protected static class InstalledStyleProvider implements StyleProvider {
@@ -3301,32 +3302,62 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
                 .show();
     }
 
-    protected void initNoDataPanel() {
-        component.setNoDataMessage(messages.getMainMessage("noDataPanel.tableMessage.emptyContainer"));
-
-        for (Action action : getActions()) {
-            if (action instanceof CreateAction) {
-                CreateAction createAction = (CreateAction) action;
-                if (!createAction.getTarget().equals(this)) {
-                    continue;
-                }
-
-                component.setNoDataLinkMessage(messages.getMainMessage("noDataPanel.link.emptyContainer"));
-                KeyCombination keyCombination = createAction.getShortcutCombination();
-                if (keyCombination != null) {
-                    String shortcut = keyCombination.format();
-                    component.setNoDataLinkShortcut("(" + shortcut + ")");
-                }
-
-                component.setNoDataLinkClickHandler(() -> {
-                    if (isNoDataPanelLinkEnabled(createAction)) {
-                        createAction.actionPerform(this);
-                    }
-                });
-
-                return;
-            }
+    protected void updateNoDataPanel() {
+        if (!showNoDataPanel) {
+            component.showNoDataPanel(false);
+            return;
         }
+
+        if (dataBinding == null) {
+            if (!getStyleName().contains(NO_DATA_PANEL_LINK_HIDDEN)) {
+                addStyleName(NO_DATA_PANEL_LINK_HIDDEN);
+            }
+            component.setNoDataMessage(messages.getMainMessage("noDataPanel.message.stubContainer"));
+            component.showNoDataPanel(true);
+            return;
+        }
+
+        dataBinding.addItemSetChangeListener(event
+                -> component.showNoDataPanel(showNoDataPanel && dataBinding.getTableItems().size() == 0));
+
+        component.setNoDataMessage(messages.getMainMessage("noDataPanel.tableMessage.emptyContainer"));
+        if (isEmptyItemsContainer()) {
+            component.setNoDataMessage(messages.getMainMessage("noDataPanel.message.stubContainer"));
+        }
+        component.setNoDataLinkMessage(messages.getMainMessage("noDataPanel.link.emptyContainer"));
+
+        CreateAction createAction = (CreateAction) getActions().stream()
+                .filter(action -> action instanceof CreateAction
+                        && ((CreateAction) action).getTarget().equals(this))
+                .findFirst()
+                .orElse(null);
+        if (createAction != null) {
+            KeyCombination keyCombination = createAction.getShortcutCombination();
+            if (keyCombination != null) {
+                String shortcut = keyCombination.format();
+                component.setNoDataLinkShortcut("(" + shortcut + ")");
+            }
+
+            component.setNoDataLinkClickHandler(() -> {
+                if (isNoDataPanelLinkEnabled(createAction)) {
+                    createAction.actionPerform(this);
+                }
+            });
+        }
+
+        if ((createAction == null || isEmptyItemsContainer())) {
+            if (!getStyleName().contains(NO_DATA_PANEL_LINK_HIDDEN)) {
+                addStyleName(NO_DATA_PANEL_LINK_HIDDEN);
+            }
+        } else {
+            removeStyleName(NO_DATA_PANEL_LINK_HIDDEN);
+        }
+
+        component.showNoDataPanel(showNoDataPanel && dataBinding.getTableItems().size() == 0);
+    }
+
+    protected boolean isEmptyItemsContainer() {
+        return getItems() instanceof EmptyTableItems;
     }
 
     protected boolean isNoDataPanelLinkEnabled(CreateAction createAction) {

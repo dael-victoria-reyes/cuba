@@ -69,8 +69,6 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
 
     protected boolean aggregatable = false;
 
-    protected boolean showNoDataPanel = true;
-
     protected Set<Object> nonSortableProperties; // lazily initialized Set
 
     protected Map<Object, CellClickListener> cellClickListeners; // lazily initialized map
@@ -682,8 +680,6 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
             }
             target.addAttribute("colcubaids", visibleColOrder.toArray());
         }
-
-        target.addAttribute("showNoDataPanel", items.size() == 0 && showNoDataPanel);
     }
 
     protected void paintAggregationRow(PaintTarget target, Map<Object, Object> aggregations) throws PaintException {
@@ -1038,12 +1034,7 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
 
     @Override
     public void showNoDataPanel(boolean show) {
-        this.showNoDataPanel = show;
-    }
-
-    @Override
-    public boolean isNoDataPanelShown() {
-        return showNoDataPanel;
+        getState().showNoDataPanel = show;
     }
 
     @Override

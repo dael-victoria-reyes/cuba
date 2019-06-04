@@ -9,7 +9,7 @@ public class CubaTreeGridState extends TreeGridState {
     public Map<String, String> columnIds = null;
 
     @NoLayout
-    public boolean showNoDataPanel = true;
+    public boolean showNoDataPanel;
 
     @NoLayout
     public String noDataMessage;

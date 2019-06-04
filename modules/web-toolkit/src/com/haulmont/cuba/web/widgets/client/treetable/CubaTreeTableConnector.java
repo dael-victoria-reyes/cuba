@@ -149,6 +149,31 @@ public class CubaTreeTableConnector extends TreeTableConnector {
                 getWidget()._delegate.htmlCaptionColumns = null;
             }
         }
+
+        if (stateChangeEvent.hasPropertyChanged("showNoDataPanel")) {
+            getWidget().showNoDataPanel(getState().showNoDataPanel);
+            if (getState().showNoDataPanel) {
+                getWidget()._delegate.noDataPanel.setNoDataMessage(getState().noDataMessage);
+                getWidget()._delegate.noDataPanel.setNoDataLinkMessage(getState().noDataLinkMessage);
+                getWidget()._delegate.noDataPanel.setNoDataLinkShortcut(getState().noDataLinkShortcut);
+                getWidget()._delegate.noDataPanel.setLinkClickHandler(getWidget()._delegate.noDataPanelLinkClickHandler);
+            }
+        }
+        if (stateChangeEvent.hasPropertyChanged("noDataMessage")) {
+            if (getWidget()._delegate.noDataPanel != null) {
+                getWidget()._delegate.noDataPanel.setNoDataMessage(getState().noDataMessage);
+            }
+        }
+        if (stateChangeEvent.hasPropertyChanged("noDataLinkMessage")) {
+            if (getWidget()._delegate.noDataPanel != null) {
+                getWidget()._delegate.noDataPanel.setNoDataLinkMessage(getState().noDataLinkMessage);
+            }
+        }
+        if (stateChangeEvent.hasPropertyChanged("noDataLinkShortcut")) {
+            if (getWidget()._delegate.noDataPanel != null) {
+                getWidget()._delegate.noDataPanel.setNoDataLinkShortcut(getState().noDataLinkShortcut);
+            }
+        }
     }
 
     @Override
@@ -243,15 +268,6 @@ public class CubaTreeTableConnector extends TreeTableConnector {
         UIDL arow = uidl.getChildByTagName("arow");
         if (arow != null) {
             getWidget().updateAggregationRow(arow);
-        }
-
-        boolean showNoDataPanel = uidl.getBooleanAttribute("showNoDataPanel");
-        getWidget().showNoDataPanel(showNoDataPanel);
-        if (showNoDataPanel) {
-            getWidget()._delegate.noDataPanel.setNoDataMessage(getState().noDataMessage);
-            getWidget()._delegate.noDataPanel.setNoDataLinkMessage(getState().noDataLinkMessage);
-            getWidget()._delegate.noDataPanel.setNoDataLinkShortcut(getState().noDataLinkShortcut);
-            getWidget()._delegate.noDataPanel.setLinkClickHandler(getWidget()._delegate.noDataPanelLinkClickHandler);
         }
     }
 

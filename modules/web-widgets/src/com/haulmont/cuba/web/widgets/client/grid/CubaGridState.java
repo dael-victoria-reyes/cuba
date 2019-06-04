@@ -25,7 +25,7 @@ public class CubaGridState extends GridState {
     public Map<String, String> columnIds = null;
 
     @NoLayout
-    public boolean showNoDataPanel = true;
+    public boolean showNoDataPanel;
 
     @NoLayout
     public String noDataMessage;

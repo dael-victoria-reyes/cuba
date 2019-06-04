@@ -72,4 +72,12 @@
       vertical-align: middle;
       color: valo-font-color($v-font-color, 0.50);
     }
+
+    .nodata-panel-link-hidden .c-table-nodata-panel-link-message {
+      display: none;
+    }
+
+    .nodata-panel-link-hidden .c-table-nodata-panel-link-shortcut {
+      display: none;
+    }
  }

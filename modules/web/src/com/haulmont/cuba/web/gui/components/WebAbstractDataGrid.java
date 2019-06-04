@@ -350,6 +350,8 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
 
         ((CubaEnhancedGrid<E>) component).setCubaEditorFieldFactory(createEditorFieldFactory());
         ((CubaEnhancedGrid<E>) component).setBeforeRefreshHandler(this::onBeforeRefreshGridData);
+
+        updateNoDataPanel();
     }
 
     protected void onBeforeRefreshGridData(E item) {
@@ -895,7 +897,6 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
             component.setColumnOrder(getColumnOrder());
 
             initShowInfoAction();
-            initNoDataPanel();
 
             if (rowsCount != null) {
                 rowsCount.setRowsCountTarget(this);
@@ -909,6 +910,8 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
 
             setUiTestId(dataGridItems);
         }
+
+        updateNoDataPanel();
     }
 
     protected void setUiTestId(DataGridItems<E> items) {
@@ -2992,27 +2995,35 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
         return joinedStyle != null ? joinedStyle.toString() : null;
     }
 
-    protected void initNoDataPanel() {
-        if (!showNoDataPanel || this.dataBinding == null) {
+    protected void updateNoDataPanel() {
+        if (!showNoDataPanel) {
             component.showNoDataPanel(false);
+            return;
+        }
+
+        if (dataBinding == null) {
+            if (!getStyleName().contains(NO_DATA_PANEL_LINK_HIDDEN)) {
+                addStyleName(NO_DATA_PANEL_LINK_HIDDEN);
+            }
+            component.setNoDataMessage(messages.getMainMessage("noDataPanel.message.stubContainer"));
+            component.showNoDataPanel(true);
             return;
         }
 
         dataBinding.addDataProviderListener(event
                 -> component.showNoDataPanel(showNoDataPanel && dataBinding.getDataGridItems().size() == 0));
 
+        component.setNoDataMessage(messages.getMainMessage("noDataPanel.dataGridMessage.emptyContainer"));
+        if (isEmptyItemsContainer()) {
+            component.setNoDataMessage(messages.getMainMessage("noDataPanel.message.stubContainer"));
+        }
+        component.setNoDataLinkMessage(messages.getMainMessage("noDataPanel.link.emptyContainer"));
+
         CreateAction createAction = (CreateAction) getActions().stream()
                 .filter(action -> action instanceof CreateAction
                         && ((CreateAction) action).getTarget().equals(this))
                 .findFirst()
                 .orElse(null);
-
-        component.setNoDataMessage(messages.getMainMessage("noDataPanel.dataGridMessage.emptyContainer"));
-        if (isStubContainer()) {
-            component.setNoDataMessage(messages.getMainMessage("noDataPanel.message.stubContainer"));
-        }
-        component.setNoDataLinkMessage(messages.getMainMessage("noDataPanel.link.emptyContainer"));
-
         if (createAction != null) {
             KeyCombination keyCombination = createAction.getShortcutCombination();
             if (keyCombination != null) {
@@ -3027,16 +3038,18 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
             });
         }
 
-        if ((createAction == null || isStubContainer())) {
+        if ((createAction == null || isEmptyItemsContainer())) {
             if (!getStyleName().contains(NO_DATA_PANEL_LINK_HIDDEN)) {
                 addStyleName(NO_DATA_PANEL_LINK_HIDDEN);
             }
         } else {
             removeStyleName(NO_DATA_PANEL_LINK_HIDDEN);
         }
+
+        component.showNoDataPanel(showNoDataPanel && dataBinding.getDataGridItems().size() == 0);
     }
 
-    protected boolean isStubContainer() {
+    protected boolean isEmptyItemsContainer() {
         return getItems() instanceof EmptyDataGridItems;
     }
 

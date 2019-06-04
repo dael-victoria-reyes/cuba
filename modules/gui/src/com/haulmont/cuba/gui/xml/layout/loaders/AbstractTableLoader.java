@@ -756,10 +756,7 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
 
     protected void loadShowNoDataPanel(Table table, Element element) {
         String showNoDataPanel = element.attributeValue("showNoDataPanel");
-        if (showNoDataPanel == null) {
-            // init with true by default
-            table.showNoDataPanel(true);
-        } else if (StringUtils.isNotBlank(showNoDataPanel)) {
+        if (!Strings.isNullOrEmpty(showNoDataPanel)) {
             table.showNoDataPanel(Boolean.parseBoolean(showNoDataPanel));
         }
     }

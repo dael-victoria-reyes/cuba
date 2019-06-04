@@ -63,8 +63,6 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
 
     protected boolean aggregatable = false;
 
-    protected boolean showNoDataPanel = true;
-
     protected Set<Object> nonSortableProperties; // lazily initialized Set
 
     protected Map<Object, CellClickListener> cellClickListeners; // lazily initialized map
@@ -672,8 +670,6 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
             }
             target.addAttribute("colcubaids", visibleColOrder.toArray());
         }
-
-        target.addAttribute("showNoDataPanel", items.size() == 0 && showNoDataPanel);
     }
 
     protected Collection<?> getAggregationItemIds() {
@@ -937,12 +933,7 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
 
     @Override
     public void showNoDataPanel(boolean show) {
-        this.showNoDataPanel = show;
-    }
-
-    @Override
-    public boolean isNoDataPanelShown() {
-        return showNoDataPanel;
+        getState().showNoDataPanel = show;
     }
 
     @Override
