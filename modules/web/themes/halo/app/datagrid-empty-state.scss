@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
- @mixin cuba-datagrid-nodata-panel {
+ @mixin cuba-datagrid-empty-state {
 
-   .c-datagrid-nodata-panel {
+   .c-datagrid-empty-state {
      bottom: 0;
      font-size: $v-font-size--h2;
      left: 0;
@@ -31,7 +31,7 @@
      }
    }
 
-   .c-datagrid-nodata-panel:after {
+   .c-datagrid-empty-state:after {
      display: inline-block;
      height: 100%;
 
@@ -39,11 +39,11 @@
      content: "";
    }
 
-   .c-datagrid-nodata-panel-message-box {
+   .c-datagrid-empty-state-message-box {
      display: inline-block;
    }
 
-   .c-datagrid-nodata-panel-message {
+   .c-datagrid-empty-state-message {
      color: valo-font-color($v-font-color, 0.50);
      display: inline-block;
      user-select: none;
@@ -54,7 +54,7 @@
      width: 100%;
    }
 
-   .c-datagrid-nodata-panel-link-message {
+   .c-datagrid-empty-state-link-message {
      text-align: center;
      user-select: none;
      -moz-user-select: none;
@@ -63,7 +63,7 @@
      vertical-align: middle;
    }
 
-   .c-datagrid-nodata-panel-link-shortcut {
+   .c-datagrid-empty-state-link-shortcut {
      text-align: center;
      user-select: none;
      -moz-user-select: none;
@@ -71,13 +71,5 @@
      -ms-user-select: none;
      vertical-align: middle;
      color: valo-font-color($v-font-color, 0.50);
-   }
-
-   .nodata-panel-link-hidden .c-datagrid-nodata-panel-link-message {
-     display: none;
-   }
-
-   .nodata-panel-link-hidden .c-datagrid-nodata-panel-link-shortcut {
-     display: none;
    }
  }

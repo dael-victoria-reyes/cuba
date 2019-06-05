@@ -2,6 +2,7 @@ package com.haulmont.cuba.web.widgets.client.treegrid;
 
 import com.haulmont.cuba.web.widgets.CubaTreeGrid;
 import com.haulmont.cuba.web.widgets.client.grid.CubaGridClientRpc;
+import com.haulmont.cuba.web.widgets.client.grid.CubaGridServerRpc;
 import com.vaadin.client.communication.StateChangeEvent;
 import com.vaadin.client.ui.treegrid.TreeGridConnector;
 import com.vaadin.client.widgets.Grid;
@@ -15,8 +16,8 @@ public class CubaTreeGridConnector extends TreeGridConnector {
 
     public CubaTreeGridConnector() {
         registerRpc(CubaGridClientRpc.class, show -> {
-            if (getWidget().getNoDataPanel() != null) {
-                getWidget().getNoDataPanel().showNoDataPanelLink(show);
+            if (getWidget().getEmptyState() != null) {
+                getWidget().getEmptyState().showLinkMessage(show);
             }
         });
     }
@@ -35,29 +36,29 @@ public class CubaTreeGridConnector extends TreeGridConnector {
     public void onStateChanged(StateChangeEvent event) {
         super.onStateChanged(event);
 
-        if (event.hasPropertyChanged("showNoDataPanel")) {
-            getWidget().showNoDataPanel(getState().showNoDataPanel);
-            if (getState().showNoDataPanel) {
-                // as noDataPanel can be recreated set all messages
-                getWidget().getNoDataPanel().setNoDataMessage(getState().noDataMessage);
-                getWidget().getNoDataPanel().setNoDataLinkMessage(getState().noDataLinkMessage);
-                getWidget().getNoDataPanel().setNoDataLinkShortcut(getState().noDataLinkShortcut);
-                getWidget().getNoDataPanel().setLinkClickHandler(getWidget().noDataPanelLinkClickHandler);
+        if (event.hasPropertyChanged("showEmptyState")) {
+            getWidget().showEmptyState(getState().showEmptyState);
+            if (getState().showEmptyState) {
+                // as emptyState can be recreated set all messages
+                getWidget().getEmptyState().setMessage(getState().emptyStateMessage);
+                getWidget().getEmptyState().setLinkMessage(getState().emptyStateLinkMessage);
+                getWidget().getEmptyState().setLinkShortcut(getState().emptyStateLinkShortcut);
+                getWidget().getEmptyState().setLinkClickHandler(getWidget().emptyStateLinkClickHandler);
             }
         }
-        if (event.hasPropertyChanged("noDataMessage")) {
-            if (getWidget().getNoDataPanel() != null) {
-                getWidget().getNoDataPanel().setNoDataMessage(getState().noDataMessage);
+        if (event.hasPropertyChanged("emptyStateMessage")) {
+            if (getWidget().getEmptyState() != null) {
+                getWidget().getEmptyState().setMessage(getState().emptyStateMessage);
             }
         }
-        if (event.hasPropertyChanged("noDataLinkMessage")) {
-            if (getWidget().getNoDataPanel() != null) {
-                getWidget().getNoDataPanel().setNoDataLinkMessage(getState().noDataLinkMessage);
+        if (event.hasPropertyChanged("emptyStateLinkMessage")) {
+            if (getWidget().getEmptyState() != null) {
+                getWidget().getEmptyState().setLinkMessage(getState().emptyStateLinkMessage);
             }
         }
-        if (event.hasPropertyChanged("noDataLinkShortcut")) {
-            if (getWidget().getNoDataPanel() != null) {
-                getWidget().getNoDataPanel().setNoDataLinkShortcut(getState().noDataLinkShortcut);
+        if (event.hasPropertyChanged("emptyStateLinkShortcut")) {
+            if (getWidget().getEmptyState() != null) {
+                getWidget().getEmptyState().setLinkShortcut(getState().emptyStateLinkShortcut);
             }
         }
     }
@@ -86,6 +87,6 @@ public class CubaTreeGridConnector extends TreeGridConnector {
     protected void init() {
         super.init();
 
-        getWidget().noDataPanelLinkClickHandler = () -> getRpcProxy(CubaTreeGridServerRpc.class).onNoDataPanelLinkClick();
+        getWidget().emptyStateLinkClickHandler = () -> getRpcProxy(CubaGridServerRpc.class).onEmptyStateLinkClick();
     }
 }

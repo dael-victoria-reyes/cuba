@@ -11,5 +11,5 @@ import com.vaadin.shared.communication.ClientRpc;
 public interface CubaGridClientRpc extends ClientRpc {
 
     @NoLayout
-    void showNoDataPanelLink(boolean show);
+    void showEmptyStateLink(boolean show);
 }

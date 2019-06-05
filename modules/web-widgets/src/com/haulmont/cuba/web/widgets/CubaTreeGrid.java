@@ -1,7 +1,7 @@
 package com.haulmont.cuba.web.widgets;
 
 import com.haulmont.cuba.web.widgets.client.grid.CubaGridClientRpc;
-import com.haulmont.cuba.web.widgets.client.treegrid.CubaTreeGridServerRpc;
+import com.haulmont.cuba.web.widgets.client.grid.CubaGridServerRpc;
 import com.haulmont.cuba.web.widgets.client.treegrid.CubaTreeGridState;
 import com.haulmont.cuba.web.widgets.data.EnhancedHierarchicalDataProvider;
 import com.haulmont.cuba.web.widgets.grid.CubaEditorField;
@@ -21,12 +21,12 @@ public class CubaTreeGrid<T> extends TreeGrid<T> implements CubaEnhancedGrid<T> 
 
     protected CubaGridEditorFieldFactory<T> editorFieldFactory;
 
-    protected Runnable noDataPanelLinkClickHandler;
+    protected Runnable emptyStateLinkClickHandler;
 
     public CubaTreeGrid() {
-        registerRpc((CubaTreeGridServerRpc) () -> {
-            if (noDataPanelLinkClickHandler != null) {
-                noDataPanelLinkClickHandler.run();
+        registerRpc((CubaGridServerRpc) () -> {
+            if (emptyStateLinkClickHandler != null) {
+                emptyStateLinkClickHandler.run();
             }
         });
     }
@@ -139,32 +139,32 @@ public class CubaTreeGrid<T> extends TreeGrid<T> implements CubaEnhancedGrid<T> 
     }
 
     @Override
-    public void showNoDataPanel(boolean show) {
-        getState().showNoDataPanel = show;
+    public void setShowEmptyState(boolean show) {
+        getState().showEmptyState = show;
     }
 
     @Override
-    public void showNoDataPanelLink(boolean show) {
-        getRpcProxy(CubaGridClientRpc.class).showNoDataPanelLink(show);
+    public void showEmptyStateLink(boolean show) {
+        getRpcProxy(CubaGridClientRpc.class).showEmptyStateLink(show);
     }
 
     @Override
-    public void setNoDataMessage(String message) {
-        getState().noDataMessage = message;
+    public void setEmptyStateMessage(String message) {
+        getState().emptyStateMessage = message;
     }
 
     @Override
-    public void setNoDataLinkMessage(String message) {
-        getState().noDataLinkMessage = message;
+    public void setEmptyStateLinkMessage(String linkMessage) {
+        getState().emptyStateLinkMessage = linkMessage;
     }
 
     @Override
-    public void setNoDataLinkShortcut(String shortcut) {
-        getState().noDataLinkShortcut = shortcut;
+    public void setEmptyStateLinkShortcut(String shortcut) {
+        getState().emptyStateLinkShortcut = shortcut;
     }
 
     @Override
-    public void setNoDataLinkClickHandler(Runnable handler) {
-        this.noDataPanelLinkClickHandler = handler;
+    public void setEmptyStateLinkClickHandler(Runnable handler) {
+        this.emptyStateLinkClickHandler = handler;
     }
 }

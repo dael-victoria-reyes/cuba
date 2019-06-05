@@ -9,5 +9,5 @@ import com.vaadin.shared.communication.ServerRpc;
 
 public interface CubaGridServerRpc extends ServerRpc {
 
-    void onNoDataPanelLinkClick();
+    void onEmptyStateLinkClick();
 }

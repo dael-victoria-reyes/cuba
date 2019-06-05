@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
- @mixin cuba-table-nodata-panel {
+ @mixin cuba-table-empty-state {
 
-    .c-table-nodata-panel {
+    .c-table-empty-state {
       bottom: 0;
       font-size: $v-font-size--h2;
       left: 0;
@@ -31,7 +31,7 @@
       }
     }
 
-    .c-table-nodata-panel:after {
+    .c-table-empty-state:after {
       display: inline-block;
       height: 100%;
 
@@ -39,11 +39,11 @@
       content: "";
     }
 
-    .c-table-nodata-panel-message-box {
+    .c-table-empty-state-message-box {
       display: inline-block;
     }
 
-    .c-table-nodata-panel-message {
+    .c-table-empty-state-message {
       color: valo-font-color($v-font-color, 0.50);
       display: inline-block;
       user-select: none;
@@ -54,7 +54,7 @@
       width: 100%;
     }
 
-    .c-table-nodata-panel-link-message {
+    .c-table-empty-state-link-message {
       text-align: center;
       user-select: none;
       -moz-user-select: none;
@@ -63,7 +63,7 @@
       vertical-align: middle;
     }
 
-    .c-table-nodata-panel-link-shortcut {
+    .c-table-empty-state-link-shortcut {
       text-align: center;
       user-select: none;
       -moz-user-select: none;
@@ -71,13 +71,5 @@
       -ms-user-select: none;
       vertical-align: middle;
       color: valo-font-color($v-font-color, 0.50);
-    }
-
-    .nodata-panel-link-hidden .c-table-nodata-panel-link-message {
-      display: none;
-    }
-
-    .nodata-panel-link-hidden .c-table-nodata-panel-link-shortcut {
-      display: none;
     }
  }

@@ -33,7 +33,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.haulmont.cuba.web.widgets.client.Tools;
 import com.haulmont.cuba.web.widgets.client.aggregation.TableAggregationRow;
 import com.haulmont.cuba.web.widgets.client.image.CubaImageWidget;
-import com.haulmont.cuba.web.widgets.client.tableshared.TableNoDataPanel;
+import com.haulmont.cuba.web.widgets.client.tableshared.TableEmptyState;
 import com.haulmont.cuba.web.widgets.client.tableshared.TableWidget;
 import com.haulmont.cuba.web.widgets.client.tableshared.TableWidgetDelegate;
 import com.vaadin.client.BrowserInfo;
@@ -250,19 +250,19 @@ public class CubaTreeTableWidget extends VTreeTable implements TableWidget {
         _delegate.aggregationRow.setHorizontalScrollPosition(scrollLeft);
     }
 
-    protected void showNoDataPanel(boolean show) {
+    protected void showEmptyState(boolean show) {
         if (show) {
-            if (_delegate.noDataPanel == null) {
-                _delegate.noDataPanel = new TableNoDataPanel();
+            if (_delegate.tableEmptyState == null) {
+                _delegate.tableEmptyState = new TableEmptyState();
             }
 
-            Element noDataElement = _delegate.noDataPanel.getElement();
-            if (!scrollBodyPanel.getElement().isOrHasChild(noDataElement)) {
-                scrollBodyPanel.getElement().appendChild(noDataElement);
+            Element emptyState = _delegate.tableEmptyState.getElement();
+            if (!scrollBodyPanel.getElement().isOrHasChild(emptyState)) {
+                scrollBodyPanel.getElement().appendChild(emptyState);
             }
-        } else if (_delegate.noDataPanel != null) {
-            _delegate.noDataPanel.getElement().removeFromParent();
-            _delegate.noDataPanel = null;
+        } else if (_delegate.tableEmptyState != null) {
+            _delegate.tableEmptyState.getElement().removeFromParent();
+            _delegate.tableEmptyState = null;
         }
     }
 

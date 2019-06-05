@@ -51,6 +51,7 @@ import com.haulmont.cuba.gui.model.DataComponents;
 import com.haulmont.cuba.gui.model.InstanceContainer;
 import com.haulmont.cuba.gui.model.impl.KeyValueContainerImpl;
 import com.haulmont.cuba.gui.screen.ScreenValidation;
+import com.haulmont.cuba.gui.screen.compatibility.LegacyFrame;
 import com.haulmont.cuba.gui.sys.UiTestIds;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
 import com.haulmont.cuba.gui.theme.ThemeConstantsManager;
@@ -172,7 +173,7 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
     protected boolean columnsCollapsingAllowed = true;
     protected boolean textSelectionEnabled = false;
     protected boolean editorCrossFieldValidate = true;
-    protected boolean showNoDataPanel = true;
+    protected boolean emptyStateEnabled = true;
 
     protected Action itemClickAction;
     protected Action enterPressAction;
@@ -350,7 +351,7 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
         ((CubaEnhancedGrid<E>) component).setCubaEditorFieldFactory(createEditorFieldFactory());
         ((CubaEnhancedGrid<E>) component).setBeforeRefreshHandler(this::onBeforeRefreshGridData);
 
-        updateNoDataPanel();
+        updateEmptyState();
     }
 
     protected void onBeforeRefreshGridData(E item) {
@@ -910,7 +911,7 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
             setUiTestId(dataGridItems);
         }
 
-        updateNoDataPanel();
+        updateEmptyState();
     }
 
     protected void setUiTestId(DataGridItems<E> items) {
@@ -2930,13 +2931,13 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
     }
 
     @Override
-    public void showNoDataPanel(boolean show) {
-        this.showNoDataPanel = show;
+    public void setEmptyStateEnabled(boolean enabled) {
+        this.emptyStateEnabled = enabled;
     }
 
     @Override
-    public boolean isNoDataPanelShown() {
-        return showNoDataPanel;
+    public boolean isEmptyStateEnabled() {
+        return emptyStateEnabled;
     }
 
     protected void enableCrossFieldValidationHandling(boolean enable) {
@@ -2994,26 +2995,25 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
         return joinedStyle != null ? joinedStyle.toString() : null;
     }
 
-    protected void updateNoDataPanel() {
-        if (!showNoDataPanel) {
-            component.showNoDataPanel(false);
+    protected void updateEmptyState() {
+        if (!emptyStateEnabled
+                || (getFrame() != null
+                && getFrame().getFrameOwner() instanceof LegacyFrame)) {
+            component.setShowEmptyState(false);
             return;
         }
 
         if (dataBinding == null) {
-            component.setNoDataMessage(messages.getMainMessage("noDataPanel.message.stubContainer"));
-            component.showNoDataPanel(true);
-            component.showNoDataPanelLink(false);
+            component.setEmptyStateMessage(messages.getMainMessage("emptyState.message.stubContainer"));
+            component.setShowEmptyState(true);
+            component.showEmptyStateLink(false);
             return;
         }
 
-        dataBinding.addDataProviderListener(event ->
-                component.showNoDataPanel(showNoDataPanel && dataBinding.getDataGridItems().size() == 0));
-
-        component.setNoDataMessage(isEmptyItemsContainer()
-                ? messages.getMainMessage("noDataPanel.message.stubContainer")
-                : messages.getMainMessage("noDataPanel.dataGridMessage.emptyContainer"));
-        component.setNoDataLinkMessage(messages.getMainMessage("noDataPanel.link.emptyContainer"));
+        component.setEmptyStateMessage(isEmptyItemsContainer()
+                ? messages.getMainMessage("emptyState.message.stubContainer")
+                : messages.getMainMessage("emptyState.dataGridMessage.emptyContainer"));
+        component.setEmptyStateLinkMessage(messages.getMainMessage("emptyState.link.emptyContainer"));
 
         CreateAction createAction = (CreateAction) getActions().stream()
                 .filter(action -> action instanceof CreateAction
@@ -3024,25 +3024,30 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
             KeyCombination keyCombination = createAction.getShortcutCombination();
             if (keyCombination != null) {
                 String shortcut = keyCombination.format();
-                component.setNoDataLinkShortcut("(" + shortcut + ")");
+                component.setEmptyStateLinkShortcut("(" + shortcut + ")");
             }
 
-            component.setNoDataLinkClickHandler(() -> {
-                if (isNoDataPanelLinkEnabled(createAction)) {
+            component.setEmptyStateLinkClickHandler(() -> {
+                if (isEmptyStateLinkEnabled(createAction)) {
                     createAction.actionPerform(this);
                 }
             });
         }
 
-        component.showNoDataPanelLink(createAction != null && !isEmptyItemsContainer());
-        component.showNoDataPanel(showNoDataPanel && dataBinding.getDataGridItems().size() == 0);
+         dataBinding.addDataProviderListener(event -> {
+            component.setShowEmptyState(emptyStateEnabled && dataBinding.getDataGridItems().size() == 0);
+            component.showEmptyStateLink(createAction != null && !isEmptyItemsContainer());
+        });
+
+        component.showEmptyStateLink(createAction != null && !isEmptyItemsContainer());
+        component.setShowEmptyState(emptyStateEnabled && dataBinding.getDataGridItems().size() == 0);
     }
 
     protected boolean isEmptyItemsContainer() {
         return getItems() instanceof EmptyDataGridItems;
     }
 
-    protected boolean isNoDataPanelLinkEnabled(CreateAction createAction) {
+    protected boolean isEmptyStateLinkEnabled(CreateAction createAction) {
         return createAction.getTarget().equals(this)
                 && createAction.isEnabled()
                 && createAction.isEnabledByUiPermissions();

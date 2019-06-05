@@ -67,14 +67,14 @@ public class CubaTableState extends TableState {
     public String[] htmlCaptionColumns;
 
     @NoLayout
-    public boolean showNoDataPanel;
+    public boolean showEmptyState;
 
     @NoLayout
-    public String noDataMessage;
+    public String emptyStateMessage;
 
     @NoLayout
-    public String noDataLinkMessage;
+    public String emptyStateLinkMessage;
 
     @NoLayout
-    public String noDataLinkShortcut;
+    public String emptyStateLinkShortcut;
 }

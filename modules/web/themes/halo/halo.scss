@@ -96,8 +96,8 @@
 @import "app/table-presentations";
 @import "app/table-paging";
 @import "app/table-showlink";
-@import "app/table-nodata-panel";
-@import "app/datagrid-nodata-panel";
+@import "app/table-empty-state";
+@import "app/datagrid-empty-state";
 @import "app/app-menu";
 @import "app/app-window";
 @import "app/app-scrollbar";
@@ -200,10 +200,10 @@
   @include cuba-breadcrumbs;
   @include cuba-bulk-editor;
   @include cuba-generic-filter;
-  @include cuba-datagrid-nodata-panel;
+  @include cuba-datagrid-empty-state;
   @include cuba-table-presentations;
   @include halo-cuba-table-paging;
-  @include cuba-table-nodata-panel;
+  @include cuba-table-empty-state;
   @include cuba-table-showlink;
   @include cuba-menubar;
   @include cuba-application-window;

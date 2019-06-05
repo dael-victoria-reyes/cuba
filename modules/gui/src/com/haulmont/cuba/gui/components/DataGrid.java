@@ -2550,8 +2550,17 @@ public interface DataGrid<E extends Entity> extends ListComponent<E>, HasButtons
         return getAction(name);
     }
 
-    void showNoDataPanel(boolean show);
-    boolean isNoDataPanelShown();
+    /**
+     * Set to true if DataGrid should show message about empty data. True by default.
+     *
+     * @param enabled enabled option
+     */
+    void setEmptyStateEnabled(boolean enabled);
+
+    /**
+     * @return true if empty state is enabled in DataGrid
+     */
+    boolean isEmptyStateEnabled();
 
     /**
      * A column in the DataGrid.

@@ -3,13 +3,16 @@
  * Use is subject to license terms, see http://www.cuba-platform.com/commercial-software-license for details.
  */
 
-package com.haulmont.cuba.web.widgets.client.tableshared;
+package com.haulmont.cuba.web.widgets.client.grid;
 
-import com.google.gwt.dom.client.*;
+import com.google.gwt.dom.client.DivElement;
+import com.google.gwt.dom.client.Document;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.SpanElement;
 import com.google.gwt.user.client.Event;
 import com.google.gwt.user.client.EventListener;
 
-public class TableNoDataPanel implements EventListener {
+public class CubaGridEmptyState implements EventListener {
 
     protected Runnable linkClickHandler;
 
@@ -20,24 +23,22 @@ public class TableNoDataPanel implements EventListener {
     protected SpanElement linkMessageLabel;
     protected SpanElement linkShortcutLabel;
 
-    public TableNoDataPanel() {
+    public CubaGridEmptyState() {
         container = Document.get().createDivElement();
-        container.setClassName("c-table-nodata-panel");
+        container.setClassName("c-datagrid-empty-state");
 
         messageBox = Document.get().createDivElement();
-        messageBox.setClassName("c-table-nodata-panel-message-box");
+        messageBox.setClassName("c-datagrid-empty-state-message-box");
 
         messageLabel = Document.get().createDivElement();
-        messageLabel.setClassName("c-table-nodata-panel-message");
+        messageLabel.setClassName("c-datagrid-empty-state-message");
         messageBox.appendChild(messageLabel);
 
         linkMessageLabel = Document.get().createSpanElement();
-        linkMessageLabel.setClassName("c-table-nodata-panel-link-message v-button-link");
-        messageBox.appendChild(linkMessageLabel);
+        linkMessageLabel.setClassName("c-datagrid-empty-state-link-message v-button-link");
 
         linkShortcutLabel = Document.get().createSpanElement();
-        linkShortcutLabel.setClassName("c-table-nodata-panel-link-shortcut");
-        messageBox.appendChild(linkShortcutLabel);
+        linkShortcutLabel.setClassName("c-datagrid-empty-state-link-shortcut");
 
         container.appendChild(messageBox);
 
@@ -45,15 +46,15 @@ public class TableNoDataPanel implements EventListener {
         Event.setEventListener(container, this);
     }
 
-    public void setNoDataMessage(String message) {
+    public void setMessage(String message) {
         messageLabel.setInnerText(message);
     }
 
-    public void setNoDataLinkMessage(String message) {
+    public void setLinkMessage(String message) {
         linkMessageLabel.setInnerText(message);
     }
 
-    public void setNoDataLinkShortcut(String shortcut) {
+    public void setLinkShortcut(String shortcut) {
         linkShortcutLabel.setInnerText(shortcut);
     }
 
@@ -70,20 +71,13 @@ public class TableNoDataPanel implements EventListener {
         if (event.getTypeInt() == Event.ONCLICK) {
             Element fromElement = Element.as(event.getEventTarget());
 
-            if (linkMessageLabel.isOrHasChild(fromElement)
-                    && linkClickHandler != null
-                    && isAddedToMessageBox(linkMessageLabel)) {
+            if (linkMessageLabel.isOrHasChild(fromElement) && linkClickHandler != null) {
                 linkClickHandler.run();
             }
         }
     }
 
-    protected boolean isAddedToMessageBox(Element element) {
-        Element parent = element.getParentElement();
-        return parent != null && parent.equals(messageBox);
-    }
-
-    public void showNoDataPanelLink(boolean show) {
+    public void showLinkMessage(boolean show) {
         if (show) {
             if (!messageBox.equals(linkMessageLabel.getParentElement())) {
                 messageBox.appendChild(linkMessageLabel);

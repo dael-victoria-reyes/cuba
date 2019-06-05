@@ -119,7 +119,7 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         loadBodyRowHeight(resultComponent, element);
         loadHeaderRowHeight(resultComponent, element);
         loadFooterRowHeight(resultComponent, element);
-        loadNoDataPanel(resultComponent, element);
+        loadEmptyStateEnabled(resultComponent, element);
 
         Element columnsElement = element.element("columns");
 
@@ -650,10 +650,10 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         return null;
     }
 
-    protected void loadNoDataPanel(DataGrid dataGrid, Element element) {
-        String showNoDataPanel = element.attributeValue("showNoDataPanel");
-        if (StringUtils.isNotBlank(showNoDataPanel)) {
-            dataGrid.showNoDataPanel(Boolean.parseBoolean(showNoDataPanel));
+    protected void loadEmptyStateEnabled(DataGrid dataGrid, Element element) {
+        String emptyStateEnabled = element.attributeValue("emptyStateEnabled");
+        if (StringUtils.isNotBlank(emptyStateEnabled)) {
+            dataGrid.setEmptyStateEnabled(Boolean.parseBoolean(emptyStateEnabled));
         }
     }
 }

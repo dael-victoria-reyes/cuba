@@ -64,6 +64,7 @@ import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.InstallTargetHandler;
 import com.haulmont.cuba.gui.screen.ScreenContext;
 import com.haulmont.cuba.gui.screen.UiControllerUtils;
+import com.haulmont.cuba.gui.screen.compatibility.LegacyFrame;
 import com.haulmont.cuba.gui.sys.UiTestIds;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
 import com.haulmont.cuba.gui.theme.ThemeConstantsManager;
@@ -194,7 +195,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     protected Map<String, Printable> printables; // lazily initialized Map
 
     protected boolean settingsEnabled = true;
-    protected boolean showNoDataPanel = true;
+    protected boolean emptyStateEnabled = true;
 
     protected TableDataContainer<E> dataBinding;
 
@@ -1065,7 +1066,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         componentComposition.setWidthUndefined();
 
         setClientCaching();
-        updateNoDataPanel();
+        setupEmptyState();
     }
 
     protected void onAfterUnregisterComponent(Component component) {
@@ -1419,7 +1420,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
             setUiTestId(tableItems);
         }
 
-        updateNoDataPanel();
+        setupEmptyState();
     }
 
     protected void setUiTestId(TableItems<E> items) {
@@ -3212,13 +3213,13 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     }
 
     @Override
-    public void showNoDataPanel(boolean show) {
-        this.showNoDataPanel = show;
+    public void setEmptyStateEnabled(boolean enabled) {
+        this.emptyStateEnabled = enabled;
     }
 
     @Override
-    public boolean isNoDataPanelShown() {
-        return showNoDataPanel;
+    public boolean isEmptyStateEnabled() {
+        return emptyStateEnabled;
     }
 
     protected static class InstalledStyleProvider implements StyleProvider {
@@ -3295,26 +3296,25 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
                 .show();
     }
 
-    protected void updateNoDataPanel() {
-        if (!showNoDataPanel) {
-            component.showNoDataPanel(false);
+    protected void setupEmptyState() {
+        if (!emptyStateEnabled
+                || (getFrame() != null
+                && getFrame().getFrameOwner() instanceof LegacyFrame)) {
+            component.setShowEmptyState(false);
             return;
         }
 
         if (dataBinding == null) {
-            component.setNoDataMessage(messages.getMainMessage("noDataPanel.message.stubContainer"));
-            component.showNoDataPanel(true);
-            component.showNoDataPanelLink(false);
+            component.setEmptyStateMessage(messages.getMainMessage("emptyState.message.stubContainer"));
+            component.setShowEmptyState(true);
+            component.showEmptyStateLink(false);
             return;
         }
 
-        dataBinding.addItemSetChangeListener(event
-                -> component.showNoDataPanel(showNoDataPanel && dataBinding.getTableItems().size() == 0));
-
-        component.setNoDataMessage(isEmptyItemsContainer()
-                ? messages.getMainMessage("noDataPanel.message.stubContainer")
-                : messages.getMainMessage("noDataPanel.tableMessage.emptyContainer"));
-        component.setNoDataLinkMessage(messages.getMainMessage("noDataPanel.link.emptyContainer"));
+        component.setEmptyStateMessage(isEmptyItemsContainer()
+                ? messages.getMainMessage("emptyState.message.stubContainer")
+                : messages.getMainMessage("emptyState.tableMessage.emptyContainer"));
+        component.setEmptyStateLinkMessage(messages.getMainMessage("emptyState.link.emptyContainer"));
 
         CreateAction createAction = (CreateAction) getActions().stream()
                 .filter(action -> action instanceof CreateAction
@@ -3325,25 +3325,30 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
             KeyCombination keyCombination = createAction.getShortcutCombination();
             if (keyCombination != null) {
                 String shortcut = keyCombination.format();
-                component.setNoDataLinkShortcut("(" + shortcut + ")");
+                component.setEmptyStateLinkShortcut("(" + shortcut + ")");
             }
 
-            component.setNoDataLinkClickHandler(() -> {
-                if (isNoDataPanelLinkEnabled(createAction)) {
+            component.setEmptyStateLinkClickHandler(() -> {
+                if (isEmptyStateLinkEnabled(createAction)) {
                     createAction.actionPerform(this);
                 }
             });
         }
 
-        component.showNoDataPanelLink(createAction != null && !isEmptyItemsContainer());
-        component.showNoDataPanel(showNoDataPanel && dataBinding.getTableItems().size() == 0);
+        dataBinding.addItemSetChangeListener(event -> {
+            component.setShowEmptyState(emptyStateEnabled && dataBinding.getTableItems().size() == 0);
+            component.showEmptyStateLink(createAction != null && !isEmptyItemsContainer());
+        });
+
+        component.showEmptyStateLink(createAction != null && !isEmptyItemsContainer());
+        component.setShowEmptyState(emptyStateEnabled && dataBinding.getTableItems().size() == 0);
     }
 
     protected boolean isEmptyItemsContainer() {
         return getItems() instanceof EmptyTableItems;
     }
 
-    protected boolean isNoDataPanelLinkEnabled(CreateAction createAction) {
+    protected boolean isEmptyStateLinkEnabled(CreateAction createAction) {
         return createAction.getTarget().equals(this)
                 && createAction.isEnabled()
                 && createAction.isEnabledByUiPermissions();

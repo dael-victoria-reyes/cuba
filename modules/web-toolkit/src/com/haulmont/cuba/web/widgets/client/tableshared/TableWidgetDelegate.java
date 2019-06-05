@@ -67,8 +67,8 @@ public class TableWidgetDelegate {
 
     public TableAggregationRow aggregationRow;
 
-    public TableNoDataPanel noDataPanel;
-    public Runnable noDataPanelLinkClickHandler;
+    public TableEmptyState tableEmptyState;
+    public Runnable emptyStateLinkClickHandler;
 
     public Set<String> clickableColumns;
     public Set<String> htmlCaptionColumns;

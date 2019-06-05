@@ -30,15 +30,15 @@ public interface CubaEnhancedGrid<T> {
 
     void setBeforeRefreshHandler(Consumer<T> beforeRefreshHandler);
 
-    void showNoDataPanel(boolean show);
+    void setShowEmptyState(boolean show);
 
-    void showNoDataPanelLink(boolean show);
+    void showEmptyStateLink(boolean show);
 
-    void setNoDataMessage(String message);
+    void setEmptyStateMessage(String message);
 
-    void setNoDataLinkMessage(String message);
+    void setEmptyStateLinkMessage(String linkMessage);
 
-    void setNoDataLinkShortcut(String shortcut);
+    void setEmptyStateLinkShortcut(String shortcut);
 
-    void setNoDataLinkClickHandler(Runnable handler);
+    void setEmptyStateLinkClickHandler(Runnable handler);
 }

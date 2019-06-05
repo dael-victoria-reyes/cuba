@@ -67,9 +67,9 @@ public class CubaScrollTableConnector extends TableConnector {
             }
 
             @Override
-            public void showNoDataPanelLink(boolean show) {
-                if (getWidget()._delegate.noDataPanel != null) {
-                    getWidget()._delegate.noDataPanel.showNoDataPanelLink(show);
+            public void showEmptyStateLink(boolean show) {
+                if (getWidget()._delegate.tableEmptyState != null) {
+                    getWidget()._delegate.tableEmptyState.showLinkMessage(show);
                 }
             }
         });
@@ -153,28 +153,29 @@ public class CubaScrollTableConnector extends TableConnector {
             }
         }
 
-        if (stateChangeEvent.hasPropertyChanged("showNoDataPanel")) {
-            getWidget().showNoDataPanel(getState().showNoDataPanel);
-            if (getState().showNoDataPanel) {
-                getWidget()._delegate.noDataPanel.setNoDataMessage(getState().noDataMessage);
-                getWidget()._delegate.noDataPanel.setNoDataLinkMessage(getState().noDataLinkMessage);
-                getWidget()._delegate.noDataPanel.setNoDataLinkShortcut(getState().noDataLinkShortcut);
-                getWidget()._delegate.noDataPanel.setLinkClickHandler(getWidget()._delegate.noDataPanelLinkClickHandler);
+        if (stateChangeEvent.hasPropertyChanged("showEmptyState")) {
+            getWidget().showEmptyState(getState().showEmptyState);
+            if (getState().showEmptyState) {
+                // as emptyState can be recreated set all messages
+                getWidget()._delegate.tableEmptyState.setMessage(getState().emptyStateMessage);
+                getWidget()._delegate.tableEmptyState.setLinkMessage(getState().emptyStateLinkMessage);
+                getWidget()._delegate.tableEmptyState.setLinkShortcut(getState().emptyStateLinkShortcut);
+                getWidget()._delegate.tableEmptyState.setLinkClickHandler(getWidget()._delegate.emptyStateLinkClickHandler);
             }
         }
-        if (stateChangeEvent.hasPropertyChanged("noDataMessage")) {
-            if (getWidget()._delegate.noDataPanel != null) {
-                getWidget()._delegate.noDataPanel.setNoDataMessage(getState().noDataMessage);
+        if (stateChangeEvent.hasPropertyChanged("emptyStateMessage")) {
+            if (getWidget()._delegate.tableEmptyState != null) {
+                getWidget()._delegate.tableEmptyState.setMessage(getState().emptyStateMessage);
             }
         }
-        if (stateChangeEvent.hasPropertyChanged("noDataLinkMessage")) {
-            if (getWidget()._delegate.noDataPanel != null) {
-                getWidget()._delegate.noDataPanel.setNoDataLinkMessage(getState().noDataLinkMessage);
+        if (stateChangeEvent.hasPropertyChanged("emptyStateLinkMessage")) {
+            if (getWidget()._delegate.tableEmptyState != null) {
+                getWidget()._delegate.tableEmptyState.setLinkMessage(getState().emptyStateLinkMessage);
             }
         }
-        if (stateChangeEvent.hasPropertyChanged("noDataLinkShortcut")) {
-            if (getWidget()._delegate.noDataPanel != null) {
-                getWidget()._delegate.noDataPanel.setNoDataLinkShortcut(getState().noDataLinkShortcut);
+        if (stateChangeEvent.hasPropertyChanged("emptyStateLinkShortcut")) {
+            if (getWidget()._delegate.tableEmptyState != null) {
+                getWidget()._delegate.tableEmptyState.setLinkShortcut(getState().emptyStateLinkShortcut);
             }
         }
     }
@@ -260,15 +261,6 @@ public class CubaScrollTableConnector extends TableConnector {
         if (arow != null) {
             getWidget().updateAggregationRow(arow);
         }
-//
-//        boolean showNoDataPanel = uidl.getBooleanAttribute("showNoDataPanel");
-//        getWidget().showNoDataPanel(showNoDataPanel);
-//        if (showNoDataPanel) {
-//            getWidget()._delegate.noDataPanel.setNoDataMessage(getState().noDataMessage);
-//            getWidget()._delegate.noDataPanel.setNoDataLinkMessage(getState().noDataLinkMessage);
-//            getWidget()._delegate.noDataPanel.setNoDataLinkShortcut(getState().noDataLinkShortcut);
-//            getWidget()._delegate.noDataPanel.setLinkClickHandler(getWidget()._delegate.noDataPanelLinkClickHandler);
-//        }
     }
 
     @Override
@@ -304,7 +296,7 @@ public class CubaScrollTableConnector extends TableConnector {
             getRpcProxy(CubaTableServerRpc.class).onAggregationTotalInputChange(columnKey, value, isFocused);
         };
 
-        getWidget()._delegate.noDataPanelLinkClickHandler = () -> getRpcProxy(CubaTableServerRpc.class).onNoDataLinkClick();
+        getWidget()._delegate.emptyStateLinkClickHandler = () -> getRpcProxy(CubaTableServerRpc.class).onEmptyStateLinkClick();
     }
 
     @Override

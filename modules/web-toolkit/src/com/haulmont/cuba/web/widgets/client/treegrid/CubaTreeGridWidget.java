@@ -4,7 +4,7 @@ import com.google.gwt.dom.client.Element;
 import com.google.gwt.dom.client.NativeEvent;
 import com.google.gwt.user.client.ui.Widget;
 import com.haulmont.cuba.web.widgets.client.grid.CubaEditorEventHandler;
-import com.haulmont.cuba.web.widgets.client.grid.CubaGridNoDataPanel;
+import com.haulmont.cuba.web.widgets.client.grid.CubaGridEmptyState;
 import com.haulmont.cuba.web.widgets.client.grid.HasClickSettings;
 import com.vaadin.client.WidgetUtil;
 import com.vaadin.client.renderers.Renderer;
@@ -25,8 +25,8 @@ public class CubaTreeGridWidget extends TreeGrid {
 
     protected Map<Column<?, JsonObject>, String> columnIds = null;
 
-    protected CubaGridNoDataPanel noDataPanel;
-    protected Runnable noDataPanelLinkClickHandler;
+    protected CubaGridEmptyState emptyState;
+    protected Runnable emptyStateLinkClickHandler;
 
     public Map<Column<?, JsonObject>, String> getColumnIds() {
         return columnIds;
@@ -50,26 +50,26 @@ public class CubaTreeGridWidget extends TreeGrid {
         }
     }
 
-    public void showNoDataPanel(boolean show) {
+    public void showEmptyState(boolean show) {
         if (show) {
-            if (noDataPanel == null) {
-                noDataPanel = new CubaGridNoDataPanel();
+            if (emptyState == null) {
+                emptyState = new CubaGridEmptyState();
             }
 
             Element wrapper = getEscalator().getTableWrapper();
-            Element panelParent = noDataPanel.getElement().getParentElement();
+            Element panelParent = emptyState.getElement().getParentElement();
 
             if (panelParent == null || !panelParent.equals(wrapper)) {
-                wrapper.appendChild(noDataPanel.getElement());
+                wrapper.appendChild(emptyState.getElement());
             }
-        } else if (noDataPanel != null) {
-            noDataPanel.getElement().removeFromParent();
-            noDataPanel = null;
+        } else if (emptyState != null) {
+            emptyState.getElement().removeFromParent();
+            emptyState = null;
         }
     }
 
-    public CubaGridNoDataPanel getNoDataPanel() {
-        return noDataPanel;
+    public CubaGridEmptyState getEmptyState() {
+        return emptyState;
     }
 
     @Override

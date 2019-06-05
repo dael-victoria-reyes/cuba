@@ -300,8 +300,17 @@ public interface Table<E extends Entity>
         return getAction(name);
     }
 
-    void showNoDataPanel(boolean show);
-    boolean isNoDataPanelShown();
+    /**
+     * Set to true if table should show message about empty data. True by default.
+     *
+     * @param enabled enabled option
+     */
+    void setEmptyStateEnabled(boolean enabled);
+
+    /**
+     * @return true if empty state is enabled in table.
+     */
+    boolean isEmptyStateEnabled();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1359,18 +1368,6 @@ public interface Table<E extends Entity>
 
         public boolean isTotalAggregation() {
             return isTotalAggregation;
-        }
-    }
-
-    class NoDataLinkClickEvent extends EventObject {
-
-        public NoDataLinkClickEvent(Table source) {
-            super(source);
-        }
-
-        @Override
-        public Table getSource() {
-            return (Table) super.getSource();
         }
     }
 }

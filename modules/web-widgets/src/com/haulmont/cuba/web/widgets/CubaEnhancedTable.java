@@ -159,12 +159,12 @@ public interface CubaEnhancedTable extends AggregationContainer {
      */
     Object getItemByRowKey(String rowKey);
 
-    void showNoDataPanel(boolean show);
-    void showNoDataPanelLink(boolean show);
-    void setNoDataMessage(String message);
-    void setNoDataLinkMessage(String message);
-    void setNoDataLinkShortcut(String message);
-    void setNoDataLinkClickHandler(Runnable handler);
+    void setShowEmptyState(boolean show);
+    void showEmptyStateLink(boolean show);
+    void setEmptyStateMessage(String message);
+    void setEmptyStateLinkMessage(String linkMessage);
+    void setEmptyStateLinkShortcut(String shortcut);
+    void setEmptyStateLinkClickHandler(Runnable handler);
 
     interface CellValueFormatter {
         String getFormattedValue(Object rowId, Object colId, Property<?> property);

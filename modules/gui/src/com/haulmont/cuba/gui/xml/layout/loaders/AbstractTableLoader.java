@@ -107,7 +107,7 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
         loadTextSelectionEnabled(resultComponent, element);
         loadResponsive(resultComponent, element);
         loadCss(resultComponent, element);
-        loadShowNoDataPanel(resultComponent, element);
+        loadEmptyStateEnabled(resultComponent, element);
 
         Element columnsElement = element.element("columns");
         Element rowsElement = element.element("rows");
@@ -754,10 +754,10 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
         return null;
     }
 
-    protected void loadShowNoDataPanel(Table table, Element element) {
-        String showNoDataPanel = element.attributeValue("showNoDataPanel");
-        if (!Strings.isNullOrEmpty(showNoDataPanel)) {
-            table.showNoDataPanel(Boolean.parseBoolean(showNoDataPanel));
+    protected void loadEmptyStateEnabled(Table table, Element element) {
+        String emptyStateEnabled = element.attributeValue("emptyStateEnabled");
+        if (!Strings.isNullOrEmpty(emptyStateEnabled)) {
+            table.setEmptyStateEnabled(Boolean.parseBoolean(emptyStateEnabled));
         }
     }
 }

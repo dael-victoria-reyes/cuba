@@ -95,7 +95,7 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
     protected Consumer<Component> afterUnregisterComponentHandler;
     protected Runnable beforeRefreshRowCacheHandler;
 
-    protected Runnable noDataLinkClickHandler;
+    protected Runnable emptyStateLinkClickHandler;
 
     public CubaTreeTable() {
         registerRpc(new CubaTableServerRpc() {
@@ -133,9 +133,9 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
             }
 
             @Override
-            public void onNoDataLinkClick() {
-                if (noDataLinkClickHandler != null) {
-                    noDataLinkClickHandler.run();
+            public void onEmptyStateLinkClick() {
+                if (emptyStateLinkClickHandler != null) {
+                    emptyStateLinkClickHandler.run();
                 }
             }
         });
@@ -1033,33 +1033,33 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
     }
 
     @Override
-    public void showNoDataPanel(boolean show) {
-        getState().showNoDataPanel = show;
+    public void setShowEmptyState(boolean show) {
+        getState().showEmptyState = show;
     }
 
     @Override
-    public void showNoDataPanelLink(boolean show) {
-        getRpcProxy(CubaTableClientRpc.class).showNoDataPanelLink(show);
+    public void showEmptyStateLink(boolean show) {
+        getRpcProxy(CubaTableClientRpc.class).showEmptyStateLink(show);
     }
 
     @Override
-    public void setNoDataMessage(String message) {
-        getState().noDataMessage = message;
+    public void setEmptyStateMessage(String message) {
+        getState().emptyStateMessage = message;
     }
 
     @Override
-    public void setNoDataLinkMessage(String message) {
-        getState().noDataLinkMessage = message;
+    public void setEmptyStateLinkMessage(String linkMessage) {
+        getState().emptyStateLinkMessage = linkMessage;
     }
 
     @Override
-    public void setNoDataLinkShortcut(String message) {
-        getState().noDataLinkShortcut = message;
+    public void setEmptyStateLinkShortcut(String shortcut) {
+        getState().emptyStateLinkShortcut = shortcut;
     }
 
     @Override
-    public void setNoDataLinkClickHandler(Runnable handler) {
-        this.noDataLinkClickHandler = handler;
+    public void setEmptyStateLinkClickHandler(Runnable handler) {
+        this.emptyStateLinkClickHandler = handler;
     }
 
     public void expandAllHierarchical(List<Object> collapsedItemIds, List<Object> preOrder, List<Object> openItems) {

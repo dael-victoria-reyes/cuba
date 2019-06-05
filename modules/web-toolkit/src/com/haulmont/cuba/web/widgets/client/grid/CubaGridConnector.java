@@ -30,8 +30,8 @@ public class CubaGridConnector extends GridConnector {
 
     public CubaGridConnector() {
         registerRpc(CubaGridClientRpc.class, (CubaGridClientRpc) show -> {
-            if (getWidget().getNoDataPanel() != null) {
-                getWidget().getNoDataPanel().showNoDataPanelLink(show);
+            if (getWidget().getEmptyState() != null) {
+                getWidget().getEmptyState().showLinkMessage(show);
             }
         });
     }
@@ -50,29 +50,29 @@ public class CubaGridConnector extends GridConnector {
     public void onStateChanged(StateChangeEvent event) {
         super.onStateChanged(event);
 
-        if (event.hasPropertyChanged("showNoDataPanel")) {
-            getWidget().showNoDataPanel(getState().showNoDataPanel);
-            if (getState().showNoDataPanel) {
-                // as noDataPanel can be recreated set all messages
-                getWidget().getNoDataPanel().setNoDataMessage(getState().noDataMessage);
-                getWidget().getNoDataPanel().setNoDataLinkMessage(getState().noDataLinkMessage);
-                getWidget().getNoDataPanel().setNoDataLinkShortcut(getState().noDataLinkShortcut);
-                getWidget().getNoDataPanel().setLinkClickHandler(getWidget().noDataPanelLinkClickHandler);
+        if (event.hasPropertyChanged("showEmptyState")) {
+            getWidget().showEmptyState(getState().showEmptyState);
+            if (getState().showEmptyState) {
+                // as emptyState element can be recreated set all messages
+                getWidget().getEmptyState().setMessage(getState().emptyStateMessage);
+                getWidget().getEmptyState().setLinkMessage(getState().emptyStateLinkMessage);
+                getWidget().getEmptyState().setLinkShortcut(getState().emptyStateLinkShortcut);
+                getWidget().getEmptyState().setLinkClickHandler(getWidget().emptyStateLinkClickHandler);
             }
         }
-        if (event.hasPropertyChanged("noDataMessage")) {
-            if (getWidget().getNoDataPanel() != null) {
-                getWidget().getNoDataPanel().setNoDataMessage(getState().noDataMessage);
+        if (event.hasPropertyChanged("emptyStateMessage")) {
+            if (getWidget().getEmptyState() != null) {
+                getWidget().getEmptyState().setMessage(getState().emptyStateMessage);
             }
         }
-        if (event.hasPropertyChanged("noDataLinkMessage")) {
-            if (getWidget().getNoDataPanel() != null) {
-                getWidget().getNoDataPanel().setNoDataLinkMessage(getState().noDataLinkMessage);
+        if (event.hasPropertyChanged("emptyStateLinkMessage")) {
+            if (getWidget().getEmptyState() != null) {
+                getWidget().getEmptyState().setLinkMessage(getState().emptyStateLinkMessage);
             }
         }
-        if (event.hasPropertyChanged("noDataLinkShortcut")) {
-            if (getWidget().getNoDataPanel() != null) {
-                getWidget().getNoDataPanel().setNoDataLinkShortcut(getState().noDataLinkShortcut);
+        if (event.hasPropertyChanged("emptyStateLinkShortcut")) {
+            if (getWidget().getEmptyState() != null) {
+                getWidget().getEmptyState().setLinkShortcut(getState().emptyStateLinkShortcut);
             }
         }
     }
@@ -101,6 +101,6 @@ public class CubaGridConnector extends GridConnector {
     protected void init() {
         super.init();
 
-        getWidget().noDataPanelLinkClickHandler = () -> getRpcProxy(CubaGridServerRpc.class).onNoDataPanelLinkClick();
+        getWidget().emptyStateLinkClickHandler = () -> getRpcProxy(CubaGridServerRpc.class).onEmptyStateLinkClick();
     }
 }
