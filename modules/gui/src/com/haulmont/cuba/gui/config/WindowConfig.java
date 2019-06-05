@@ -57,6 +57,7 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * GenericUI class holding information about all registered in <code>screens.xml</code> screens.
@@ -231,10 +232,31 @@ public class WindowConfig {
 
         routes.clear();
 
+        cleanupScreenConfigurations();
+
         loadScreenConfigurations();
         loadScreensXml();
 
         log.info("WindowConfig initialized in {} ms", System.currentTimeMillis() - startTime);
+    }
+
+    protected void cleanupScreenConfigurations() {
+        List<UiControllersConfiguration> explicitConfigurations = configurations.stream()
+                .filter(this::isExplicitScreenConfiguration)
+                .collect(Collectors.toList());
+
+        for (UiControllersConfiguration conf : explicitConfigurations) {
+            List<UiControllerDefinition> definitions = conf.getExplicitDefinitions().stream()
+                    .filter(def -> loadClassResource(def.getControllerClass()) != null)
+                    .collect(Collectors.toList());
+
+            conf.setExplicitDefinitions(definitions);
+        }
+    }
+
+    protected boolean isExplicitScreenConfiguration(UiControllersConfiguration conf) {
+        return conf.getBasePackages().isEmpty()
+                && !conf.getExplicitDefinitions().isEmpty();
     }
 
     protected void loadScreenConfigurations() {
@@ -430,10 +452,7 @@ public class WindowConfig {
     }
 
     protected MetadataReader loadClassMetadata(String className) {
-        Resource resource = getResourceLoader().getResource("/" + className.replace(".", "/") + ".class");
-        if (!resource.isReadable()) {
-            throw new RuntimeException(String.format("Resource %s is not readable for class %s", resource, className));
-        }
+        Resource resource = loadClassResourceNN(className);
         try {
             return getMetadataReaderFactory().getMetadataReader(resource);
         } catch (IOException e) {
@@ -442,14 +461,58 @@ public class WindowConfig {
     }
 
     /**
-     * Loads screen class to put it into classpath.
-     * <p>
-     * Intended to hot-deploy {@link UiController} screens.
+     * Loads {@link Resource} for the given {@code className}
+     *
+     * @param className FQN of class to load
+     * @return class resource or null if class cannot be loaded
+     */
+    protected Resource loadClassResource(String className) {
+        String location = "/" + className.replace(".", "/") + ".class";
+        Resource resource = getResourceLoader().getResource(location);
+        if (!resource.isReadable()) {
+            resource = resources.getResource(location);
+        }
+
+        return resource.isReadable() ? resource : null;
+    }
+
+    /**
+     * Loads {@link Resource} for the given {@code className}
+     *
+     * @param className FQN of class to load
+     * @return class resource
+     * @throws RuntimeException if class cannot be loaded
+     */
+    protected Resource loadClassResourceNN(String className) {
+        Resource resource = loadClassResource(className);
+        if (!resource.isReadable()) {
+            throw new RuntimeException(String.format("Resource %s is not readable for class %s", resource, className));
+        }
+        return resource;
+    }
+
+    /**
+     * Loads hot-deployed {@link UiController} screens and registers
+     * {@link UiControllersConfiguration} containing new {@link UiControllerDefinition}.
      *
      * @param className the fully qualified name of the screen class to load
      */
     public void loadScreenClass(String className) {
-        scripting.loadClassNN(className);
+        Class<?> screenClass = scripting.loadClass(className);
+        if (screenClass == null) {
+            log.error("Failed to hot deploy a screen. Unable to load screen class '{}'", className);
+        }
+
+        UiControllersConfiguration controllersConfiguration = new UiControllersConfiguration();
+        controllersConfiguration.setApplicationContext(applicationContext);
+        controllersConfiguration.setMetadataReaderFactory(metadataReaderFactory);
+
+        UiControllerDefinition controllerDefinition =
+                controllersConfiguration.extractControllerDefinition(loadClassMetadata(className));
+
+        controllersConfiguration.setExplicitDefinitions(Collections.singletonList(controllerDefinition));
+
+        configurations.add(controllersConfiguration);
 
         reset();
     }
