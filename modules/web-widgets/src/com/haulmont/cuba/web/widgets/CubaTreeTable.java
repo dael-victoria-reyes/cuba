@@ -653,9 +653,9 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
     }
 
     @Override
-    public Map<Object, Object> unformattedAggregate(Context context) {
+    public Map<Object, Object> doTypedAggregation(Context context) {
         if (items instanceof AggregationContainer && isAggregatable()) {
-            return ((AggregationContainer) items).unformattedAggregate(context);
+            return ((AggregationContainer) items).doTypedAggregation(context);
         }
         throw new IllegalStateException("Table container is not AggregationContainer: " + items.getClass());
     }

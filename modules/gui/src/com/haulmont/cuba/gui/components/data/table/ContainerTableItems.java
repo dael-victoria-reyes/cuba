@@ -278,7 +278,7 @@ public class ContainerTableItems<E extends Entity> implements EntityTableItems<E
 
     @SuppressWarnings("unchecked")
     @Override
-    public Map<AggregationInfo, Object> unformattedAggregate(AggregationInfo[] aggregationInfos, Collection<?> itemIds) {
-        return aggregatableDelegate.unformattedAggregation(aggregationInfos, itemIds);
+    public Map<AggregationInfo, Object> doTypedAggregation(AggregationInfo[] aggregationInfos, Collection<?> itemIds) {
+        return aggregatableDelegate.doTypedAggregation(aggregationInfos, itemIds);
     }
 }

@@ -909,7 +909,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     @Override
     public Map<Object, Object> getAggregationResults() {
         Collection<?> itemIds = WebAbstractTable.this.getItems().getItemIds();
-        return component.unformattedAggregate(new AggregationContainer.Context(itemIds));
+        return component.doTypedAggregation(new AggregationContainer.Context(itemIds));
     }
 
     @Override
@@ -1656,8 +1656,8 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         }
 
         @Override
-        public Map<Object, Object> unformattedAggregate(Context context) {
-            return __unformattedAggregate(this, context);
+        public Map<Object, Object> doTypedAggregation(Context context) {
+            return __doTypedAggregation(this, context);
         }
     }
 
@@ -1705,8 +1705,8 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         }
 
         @Override
-        public Map<Object, Object> unformattedAggregate(Context context) {
-            return __unformattedAggregate(this, context);
+        public Map<Object, Object> doTypedAggregation(Context context) {
+            return __doTypedAggregation(this, context);
         }
     }
 
@@ -2615,7 +2615,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         throw new IllegalArgumentException(msg);
     }
 
-    protected Map<Object, Object> __unformattedAggregate(AggregationContainer container, AggregationContainer.Context context) {
+    protected Map<Object, Object> __doTypedAggregation(AggregationContainer container, AggregationContainer.Context context) {
         if (!(getItems() instanceof AggregatableTableItems)) {
             throw new IllegalStateException("Table items must implement AggregatableTableItems in " +
                     "order to use aggregation");
@@ -2623,7 +2623,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
         List<AggregationInfo> aggregationInfos = getAggregationInfos(container);
 
-        Map<AggregationInfo, Object> results = ((AggregatableTableItems<E>) getItems()).unformattedAggregate(
+        Map<AggregationInfo, Object> results = ((AggregatableTableItems<E>) getItems()).doTypedAggregation(
                 aggregationInfos.toArray(new AggregationInfo[0]),
                 context.getItemIds()
         );

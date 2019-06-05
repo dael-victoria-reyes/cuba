@@ -134,7 +134,7 @@ public class NullGroupTableContainer extends ContainerOrderedWrapper
     }
 
     @Override
-    public Map<Object, Object> unformattedAggregate(Context context) {
+    public Map<Object, Object> doTypedAggregation(Context context) {
         throw new IllegalStateException(ERROR_MESSAGE);
     }
 

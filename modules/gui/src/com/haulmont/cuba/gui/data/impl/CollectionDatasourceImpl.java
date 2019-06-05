@@ -711,8 +711,8 @@ public class CollectionDatasourceImpl<T extends Entity<K>, K>
     }
 
     @Override
-    public Map<AggregationInfo, Object> unformattedAggregate(AggregationInfo[] aggregationInfos, Collection<K> itemIds) {
-        return aggregatableDelegate.unformattedAggregation(aggregationInfos, itemIds);
+    public Map<AggregationInfo, Object> doTypedAggregation(AggregationInfo[] aggregationInfos, Collection<K> itemIds) {
+        return aggregatableDelegate.doTypedAggregation(aggregationInfos, itemIds);
     }
 
     protected Object getItemValue(MetaPropertyPath property, K itemId) {

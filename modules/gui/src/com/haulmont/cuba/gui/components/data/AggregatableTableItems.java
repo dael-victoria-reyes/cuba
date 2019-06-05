@@ -27,12 +27,12 @@ public interface AggregatableTableItems<E extends Entity> extends TableItems<E> 
     Map<AggregationInfo, String> aggregate(AggregationInfo[] aggregationInfos, Collection<?> itemIds);
 
     /**
-     * Perform aggregation and return unformatted values, i.e. if aggregation was performed for Long type column it
-     * will return map with pair: AggregationInfo - Long.
+     * Perform aggregation and return map with aggregation info and aggregation column type, i.e. if aggregation was
+     * performed for Long type column it will return pair: AggregationInfo - Long.
      *
      * @param aggregationInfos aggregation infos
      * @param itemIds          collection of item ids
-     * @return unformatted aggregated values
+     * @return map with aggregation info and aggregation column type
      */
-    Map<AggregationInfo, Object> unformattedAggregate(AggregationInfo[] aggregationInfos, Collection<?> itemIds);
+    Map<AggregationInfo, Object> doTypedAggregation(AggregationInfo[] aggregationInfos, Collection<?> itemIds);
 }

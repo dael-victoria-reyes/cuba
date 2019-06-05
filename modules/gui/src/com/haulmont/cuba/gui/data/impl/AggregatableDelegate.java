@@ -86,15 +86,11 @@ public abstract class AggregatableDelegate<K> {
         return aggregationResults;
     }
 
-    public Map<AggregationInfo, Object> unformattedAggregation(AggregationInfo[] aggregationInfos, Collection<K> itemIds) {
+    public Map<AggregationInfo, Object> doTypedAggregation(AggregationInfo[] aggregationInfos, Collection<K> itemIds) {
         if (aggregationInfos == null || aggregationInfos.length == 0) {
             throw new NullPointerException("Aggregation must be executed at least by one field");
         }
 
-        return doUnformattedAggregation(itemIds, aggregationInfos);
-    }
-
-    protected Map<AggregationInfo, Object> doUnformattedAggregation(Collection<K> itemIds, AggregationInfo[] aggregationInfos) {
         Map<AggregationInfo, Object> aggregationResults = new HashMap<>();
 
         for (AggregationInfo aggregationInfo : aggregationInfos) {
