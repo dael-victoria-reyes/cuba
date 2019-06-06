@@ -66,7 +66,7 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
     protected ComponentLoader buttonsPanelLoader;
     protected Element panelElement;
 
-    protected boolean isColumnSorted = false;
+    protected boolean sortColumnLoaded = false;
 
     @Override
     public void loadComponent() {
@@ -533,7 +533,7 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
 
         String sort = element.attributeValue("sort");
         if (StringUtils.isNotBlank(sort)) {
-            setColumnSort(column, sort);
+            loadColumnSort(column, sort);
         }
 
         loadCaption(column, element);
@@ -760,8 +760,8 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
         return null;
     }
 
-    protected void setColumnSort(Table.Column column, String sort) {
-        if (isColumnSorted) {
+    protected void loadColumnSort(Table.Column column, String sort) {
+        if (sortColumnLoaded) {
             throw new GuiDevelopmentException("Only one column can be sorted at the same time", getContext());
         }
 
@@ -776,6 +776,6 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
             resultComponent.sort(column.getStringId(), sortDirection);
         });
 
-        isColumnSorted = true;
+        sortColumnLoaded = true;
     }
 }

@@ -739,8 +739,8 @@ public class CubaGroupTable extends CubaTable implements GroupTableContainer {
     }
 
     @Override
-    public void setSortAscendingAndPropertyId(boolean sortAscending, Object propertyId) {
-        super.setSortAscendingAndContainerPropertyId(sortAscending, propertyId);
+    public void setPropertySortAscending(Object propertyId, boolean sortAscending) {
+        super.setContainerPropertySortAscending(propertyId, sortAscending);
     }
 
     @Override

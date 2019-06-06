@@ -1010,7 +1010,7 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
     }
 
     @Override
-    public void setSortAscendingAndPropertyId(boolean sortAscending, Object propertyId) {
-        super.setSortAscendingAndContainerPropertyId(sortAscending, propertyId);
+    public void setPropertySortAscending(Object propertyId, boolean sortAscending) {
+        super.setContainerPropertySortAscending(propertyId, sortAscending);
     }
 }

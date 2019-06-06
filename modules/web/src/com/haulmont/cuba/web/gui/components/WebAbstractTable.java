@@ -801,7 +801,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     @Override
     public void sortBy(Object propertyId, boolean ascending) {
         if (isSortable()) {
-            component.setSortAscendingAndPropertyId(ascending, propertyId);
+            component.setPropertySortAscending(propertyId, ascending);
             component.sort();
         }
     }
@@ -814,9 +814,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         }
 
         if (isSortable()) {
-            component.setSortAscendingAndPropertyId(
-                    direction == SortDirection.ASCENDING,
-                    column.getId());
+            component.setPropertySortAscending(column.getId(), direction == SortDirection.ASCENDING);
             component.sort();
         }
     }
@@ -1410,17 +1408,19 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
             if (!canBeSorted(tableItems)) {
                 setSortable(false);
             } else { // restore sortable
-                component.setSortEnabled(sortable);
+                setSortable(sortable);
             }
 
-            // resort data if table was sorted
+            // resort data if table have been sorted before setting items
             if (isSortable()) {
                 if (getSortInfo() != null) {
                     SortDirection sortDirection = getSortInfo().getAscending()
                             ? SortDirection.ASCENDING : SortDirection.DESCENDING;
+
                     Object columnId = getSortInfo().getPropertyId();
                     String id = columnId instanceof MetaPropertyPath
                             ? ((MetaPropertyPath) columnId).toPathString() : String.valueOf(columnId);
+
                     sort(id, sortDirection);
                 }
             }

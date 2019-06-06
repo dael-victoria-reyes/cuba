@@ -56,7 +56,7 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
     protected ComponentLoader buttonsPanelLoader;
     protected Element panelElement;
 
-    protected boolean isColumnSorted = false;
+    protected boolean sortColumnLoaded = false;
 
     @Override
     public void createComponent() {
@@ -470,7 +470,7 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
 
         String sort = element.attributeValue("sort");
         if (StringUtils.isNotBlank(sort)) {
-            setColumnSort(component, column, sort);
+            loadColumnSort(component, column, sort);
         }
 
         String caption = loadCaption(element);
@@ -656,8 +656,8 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         return null;
     }
 
-    protected void setColumnSort(DataGrid component, Column column, String sort) {
-        if (isColumnSorted) {
+    protected void loadColumnSort(DataGrid component, Column column, String sort) {
+        if (sortColumnLoaded) {
             throw new GuiDevelopmentException("Only one column can be sorted at the same time", getContext());
         }
 
@@ -672,6 +672,6 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
             component.sort(column.getId(), sortDirection);
         });
 
-        isColumnSorted = true;
+        sortColumnLoaded = true;
     }
 }
