@@ -56,7 +56,7 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
     protected ComponentLoader buttonsPanelLoader;
     protected Element panelElement;
 
-    protected boolean sortColumnLoaded = false;
+    protected String sortedColumnId;
 
     @Override
     public void createComponent() {
@@ -657,8 +657,9 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
     }
 
     protected void loadColumnSort(DataGrid component, Column column, String sort) {
-        if (sortColumnLoaded) {
-            throw new GuiDevelopmentException("Only one column can be sorted at the same time", getContext());
+        if (sortedColumnId != null) {
+            throw new GuiDevelopmentException(String.format("Column '%s' cannot be sorted because DataGrid have already" +
+                    " sorted '%s' column", column.getId(), sortedColumnId), getContext());
         }
 
         if (column.getPropertyPath() == null) {
@@ -667,11 +668,10 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
                     getContext());
         }
 
-        getComponentContext().addPostInitTask((context1, window) -> {
-            DataGrid.SortDirection sortDirection = DataGrid.SortDirection.valueOf(sort);
-            component.sort(column.getId(), sortDirection);
-        });
+        DataGrid.SortDirection sortDirection = DataGrid.SortDirection.valueOf(sort);
+        getComponentContext().addPostInitTask((context, window) ->
+                component.sort(column.getId(), sortDirection));
 
-        sortColumnLoaded = true;
+        sortedColumnId = column.getId();
     }
 }

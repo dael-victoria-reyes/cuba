@@ -1102,7 +1102,7 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
     }
 
     @Override
-    public void setPropertySortAscending(Object propertyId, boolean sortAscending) {
-        super.setContainerPropertySortAscending(propertyId, sortAscending);
+    public void setSortOptions(Object propertyId, boolean sortAscending) {
+        super.setContainerSortOptions(propertyId, sortAscending);
     }
 }
