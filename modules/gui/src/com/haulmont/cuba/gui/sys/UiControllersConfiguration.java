@@ -92,7 +92,7 @@ public class UiControllersConfiguration extends AbstractScanConfiguration {
                 .collect(Collectors.toList());
     }
 
-    public UiControllerDefinition extractControllerDefinition(MetadataReader metadataReader) {
+    protected UiControllerDefinition extractControllerDefinition(MetadataReader metadataReader) {
         Map<String, Object> uiControllerAnn =
                 metadataReader.getAnnotationMetadata().getAnnotationAttributes(UiController.class.getName());
 

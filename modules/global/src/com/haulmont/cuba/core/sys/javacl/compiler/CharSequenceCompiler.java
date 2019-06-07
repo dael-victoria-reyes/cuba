@@ -16,19 +16,18 @@
  */
 package com.haulmont.cuba.core.sys.javacl.compiler;
 
+import com.haulmont.cuba.core.sys.javacl.JavaClassLoader;
 import com.haulmont.cuba.core.sys.javacl.ProxyClassLoader;
 
+import javax.annotation.Nullable;
 import javax.tools.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.HashMap;
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
-import java.io.ByteArrayInputStream;
-import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Compile a String or other {@link CharSequence}, returning a Java
@@ -204,6 +203,33 @@ public class CharSequenceCompiler<T> {
     public Class<T> loadClass(final String qualifiedClassName)
             throws ClassNotFoundException {
         return (Class<T>) classLoader.loadClass(qualifiedClassName);
+    }
+
+    /**
+     * Intended to load classes byte code after {@link #compile(Map, DiagnosticCollector)} task is finished.
+     * <p>
+     * Scans {@link #classLoader} files with {@link JavaFileObject.Kind#CLASS} type.
+     * <p>
+     * Used to provide class resources in {@link JavaClassLoader#getClassResource(String)}
+     *
+     * @param qualifiedClassName fully qualified name of a class
+     * @return compiled class byte code {@link InputStream} or null if class not found
+     * @throws IOException is thrown when cannot create byte code input stream
+     */
+    @Nullable
+    public InputStream getCompiled(final String qualifiedClassName) throws IOException {
+        JavaFileObject javaFileObject = classLoader.files().stream()
+                .filter(jfo ->
+                        JavaFileObject.Kind.CLASS == jfo.getKind()
+                                && jfo instanceof JavaFileObjectImpl)
+                .filter(jfo ->
+                        qualifiedClassName.equals(((JavaFileObjectImpl) jfo).definedClass.getName()))
+                .findFirst()
+                .orElse(null);
+
+        return javaFileObject != null
+                ? javaFileObject.openInputStream()
+                : null;
     }
 
     /**

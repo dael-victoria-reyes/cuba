@@ -23,18 +23,23 @@ import com.haulmont.cuba.core.global.GlobalConfig;
 import com.haulmont.cuba.core.global.TimeSource;
 import com.haulmont.cuba.core.sys.SpringBeanLoader;
 import com.haulmont.cuba.core.sys.javacl.compiler.CharSequenceCompiler;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.perf4j.StopWatch;
 import org.perf4j.slf4j.Slf4JStopWatch;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.InputStreamResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Nullable;
 import javax.inject.Inject;
 import javax.tools.DiagnosticCollector;
 import javax.tools.JavaFileObject;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -57,6 +62,7 @@ public class JavaClassLoader extends URLClassLoader {
     protected final String rootDir;
 
     protected final Map<String, TimestampClass> compiled = new ConcurrentHashMap<>();
+    protected final Map<String, CompiledClass> compiledByteCode = new ConcurrentHashMap<>();
     protected final ConcurrentHashMap<String, Lock> locks = new ConcurrentHashMap<>();
 
     protected final ProxyClassLoader proxyClassLoader;
@@ -96,6 +102,7 @@ public class JavaClassLoader extends URLClassLoader {
 
     public void clearCache() {
         compiled.clear();
+        compiledByteCode.clear();
     }
 
     @Override
@@ -137,14 +144,22 @@ public class JavaClassLoader extends URLClassLoader {
                 sourcesAndDependencies.collectDependencies(containerClassName);
                 Map<String, CharSequence> sourcesForCompilation = sourcesAndDependencies.collectSourcesForCompilation(containerClassName);
 
+                CharSequenceCompiler compiler = createCompiler();
+
                 @SuppressWarnings("unchecked")
-                Map<String, Class> compiledClasses = createCompiler().compile(sourcesForCompilation, errs);
+                Map<String, Class> compiledClasses = compiler.compile(sourcesForCompilation, errs);
 
                 Map<String, TimestampClass> compiledTimestampClasses = wrapCompiledClasses(compiledClasses);
                 compiled.putAll(compiledTimestampClasses);
                 linkDependencies(compiledTimestampClasses, sourcesAndDependencies.dependencies);
 
                 clazz = compiledClasses.get(fullClassName);
+
+                InputStream compiledClass = compiler.getCompiled(fullClassName);
+                if (compiledClass != null) {
+                    compiledByteCode.put(fullClassName,
+                            new CompiledClass(fullClassName, IOUtils.toByteArray(compiledClass)));
+                }
 
                 springBeanLoader.updateContext(compiledClasses.values());
 
@@ -213,6 +228,14 @@ public class JavaClassLoader extends URLClassLoader {
             return resource;
         else
             return super.getResource(name);
+    }
+
+    @Nullable
+    public Resource getClassResource(String className) {
+        CompiledClass compiledClass = compiledByteCode.get(className);
+        return compiledClass != null
+                ? new InputStreamResource(compiledClass.getByteCodeAsStream())
+                : null;
     }
 
     protected Date getCurrentTimestamp() {

@@ -27,7 +27,9 @@ import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.core.global.Resources;
 import com.haulmont.cuba.core.global.Scripting;
 import com.haulmont.cuba.core.sys.AppContext;
+import com.haulmont.cuba.core.sys.javacl.JavaClassLoader;
 import com.haulmont.cuba.gui.NoSuchScreenException;
+import com.haulmont.cuba.gui.Route;
 import com.haulmont.cuba.gui.components.AbstractFrame;
 import com.haulmont.cuba.gui.components.Window;
 import com.haulmont.cuba.gui.screen.*;
@@ -57,7 +59,6 @@ import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * GenericUI class holding information about all registered in <code>screens.xml</code> screens.
@@ -93,6 +94,8 @@ public class WindowConfig {
     protected Resources resources;
     @Inject
     protected Scripting scripting;
+    @Inject
+    protected JavaClassLoader javaClassLoader;
     @Inject
     protected Metadata metadata;
     @Inject
@@ -232,31 +235,10 @@ public class WindowConfig {
 
         routes.clear();
 
-        cleanupScreenConfigurations();
-
         loadScreenConfigurations();
         loadScreensXml();
 
         log.info("WindowConfig initialized in {} ms", System.currentTimeMillis() - startTime);
-    }
-
-    protected void cleanupScreenConfigurations() {
-        List<UiControllersConfiguration> explicitConfigurations = configurations.stream()
-                .filter(this::isExplicitScreenConfiguration)
-                .collect(Collectors.toList());
-
-        for (UiControllersConfiguration conf : explicitConfigurations) {
-            List<UiControllerDefinition> definitions = conf.getExplicitDefinitions().stream()
-                    .filter(def -> loadClassResource(def.getControllerClass()) != null)
-                    .collect(Collectors.toList());
-
-            conf.setExplicitDefinitions(definitions);
-        }
-    }
-
-    protected boolean isExplicitScreenConfiguration(UiControllersConfiguration conf) {
-        return conf.getBasePackages().isEmpty()
-                && !conf.getExplicitDefinitions().isEmpty();
     }
 
     protected void loadScreenConfigurations() {
@@ -472,8 +454,13 @@ public class WindowConfig {
         if (!resource.isReadable()) {
             resource = resources.getResource(location);
         }
+        if (!resource.isReadable()) {
+            resource = javaClassLoader.getClassResource(className);
+        }
 
-        return resource.isReadable() ? resource : null;
+        return resource == null ? null
+                : resource.isReadable()
+                        ? resource : null;
     }
 
     /**
@@ -498,23 +485,88 @@ public class WindowConfig {
      * @param className the fully qualified name of the screen class to load
      */
     public void loadScreenClass(String className) {
-        Class<?> screenClass = scripting.loadClass(className);
-        if (screenClass == null) {
-            log.error("Failed to hot deploy a screen. Unable to load screen class '{}'", className);
+        try {
+            javaClassLoader.loadClass(className);
+        } catch (ClassNotFoundException e) {
+            log.error("Failed to hot deploy screen '{}'. Unable to load screen class", className);
+            return;
         }
 
         UiControllersConfiguration controllersConfiguration = new UiControllersConfiguration();
         controllersConfiguration.setApplicationContext(applicationContext);
         controllersConfiguration.setMetadataReaderFactory(metadataReaderFactory);
 
-        UiControllerDefinition controllerDefinition =
-                controllersConfiguration.extractControllerDefinition(loadClassMetadata(className));
+        UiControllerDefinition controllerDefinition = extractControllerDefinition(loadClassMetadata(className));
 
         controllersConfiguration.setExplicitDefinitions(Collections.singletonList(controllerDefinition));
 
         configurations.add(controllersConfiguration);
 
         reset();
+    }
+
+    // CAUTION: copied from UiControllersConfiguration
+    public UiControllerDefinition extractControllerDefinition(MetadataReader metadataReader) {
+        Map<String, Object> uiControllerAnn =
+                metadataReader.getAnnotationMetadata().getAnnotationAttributes(UiController.class.getName());
+
+        String idAttr = null;
+        String valueAttr = null;
+        if (uiControllerAnn != null) {
+            idAttr = (String) uiControllerAnn.get(UiController.ID_ATTRIBUTE);
+            valueAttr = (String) uiControllerAnn.get(UiController.VALUE_ATTRIBUTE);
+        }
+
+        String className = metadataReader.getClassMetadata().getClassName();
+        String controllerId = UiDescriptorUtils.getInferredScreenId(idAttr, valueAttr, className);
+        RouteDefinition routeDefinition = extractRouteDefinition(metadataReader);
+
+        return new UiControllerDefinition(controllerId, className, routeDefinition);
+    }
+
+    // CAUTION: copied from UiControllersConfiguration
+    protected RouteDefinition extractRouteDefinition(MetadataReader metadataReader) {
+        Map<String, Object> routeAnnotation =
+                metadataReader.getAnnotationMetadata().getAnnotationAttributes(Route.class.getName());
+
+        if (routeAnnotation == null) {
+            routeAnnotation = traverseForRoute(metadataReader);
+        }
+
+        RouteDefinition routeDefinition = null;
+
+        if (routeAnnotation != null) {
+            String pathAttr = (String) routeAnnotation.get(Route.PATH_ATTRIBUTE);
+            String parentPrefixAttr = (String) routeAnnotation.get(Route.PARENT_PREFIX_ATTRIBUTE);
+            boolean rootRoute = (boolean) routeAnnotation.get(Route.ROOT_ATTRIBUTE);
+
+            routeDefinition = new RouteDefinition(pathAttr, parentPrefixAttr, rootRoute);
+        }
+
+        return routeDefinition;
+    }
+
+    // CAUTION: copied from UiControllersConfiguration
+    @Nullable
+    protected Map<String, Object> traverseForRoute(MetadataReader metadataReader) {
+        String superClazz = metadataReader.getClassMetadata().getSuperClassName();
+
+        if (Screen.class.getName().equals(superClazz)
+                || superClazz == null) {
+            return null;
+        }
+
+        try {
+            MetadataReader superReader = metadataReaderFactory.getMetadataReader(superClazz);
+            Map<String, Object> routeAnnotation = superReader.getAnnotationMetadata()
+                    .getAnnotationAttributes(Route.class.getName());
+
+            return routeAnnotation != null
+                    ? routeAnnotation
+                    : traverseForRoute(superReader);
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to read class: %s" + superClazz);
+        }
     }
 
     /**
