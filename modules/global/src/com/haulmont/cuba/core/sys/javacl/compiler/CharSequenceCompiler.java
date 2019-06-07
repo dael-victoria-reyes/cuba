@@ -223,7 +223,8 @@ public class CharSequenceCompiler<T> {
                         JavaFileObject.Kind.CLASS == jfo.getKind()
                                 && jfo instanceof JavaFileObjectImpl)
                 .filter(jfo ->
-                        qualifiedClassName.equals(((JavaFileObjectImpl) jfo).definedClass.getName()))
+                        ((JavaFileObjectImpl) jfo).definedClass != null
+                                && qualifiedClassName.equals(((JavaFileObjectImpl) jfo).definedClass.getName()))
                 .findFirst()
                 .orElse(null);
 
