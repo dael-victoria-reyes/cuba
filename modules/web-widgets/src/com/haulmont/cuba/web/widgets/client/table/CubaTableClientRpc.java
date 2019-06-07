@@ -31,7 +31,4 @@ public interface CubaTableClientRpc extends ClientRpc {
     void showCustomPopup();
 
     void requestFocus(String itemKey, String columnKey);
-
-    @NoLayout
-    void showEmptyStateLink(boolean show);
 }

@@ -16,7 +16,4 @@ public class CubaTreeGridState extends TreeGridState {
 
     @NoLayout
     public String emptyStateLinkMessage;
-
-    @NoLayout
-    public String emptyStateLinkShortcut;
 }

@@ -1,7 +1,6 @@
 package com.haulmont.cuba.web.widgets.client.treegrid;
 
 import com.haulmont.cuba.web.widgets.CubaTreeGrid;
-import com.haulmont.cuba.web.widgets.client.grid.CubaGridClientRpc;
 import com.haulmont.cuba.web.widgets.client.grid.CubaGridServerRpc;
 import com.vaadin.client.communication.StateChangeEvent;
 import com.vaadin.client.ui.treegrid.TreeGridConnector;
@@ -13,14 +12,6 @@ import java.util.List;
 
 @Connect(CubaTreeGrid.class)
 public class CubaTreeGridConnector extends TreeGridConnector {
-
-    public CubaTreeGridConnector() {
-        registerRpc(CubaGridClientRpc.class, show -> {
-            if (getWidget().getEmptyState() != null) {
-                getWidget().getEmptyState().showLinkMessage(show);
-            }
-        });
-    }
 
     @Override
     public CubaTreeGridWidget getWidget() {
@@ -42,7 +33,6 @@ public class CubaTreeGridConnector extends TreeGridConnector {
                 // as emptyState can be recreated set all messages
                 getWidget().getEmptyState().setMessage(getState().emptyStateMessage);
                 getWidget().getEmptyState().setLinkMessage(getState().emptyStateLinkMessage);
-                getWidget().getEmptyState().setLinkShortcut(getState().emptyStateLinkShortcut);
                 getWidget().getEmptyState().setLinkClickHandler(getWidget().emptyStateLinkClickHandler);
             }
         }
@@ -54,11 +44,6 @@ public class CubaTreeGridConnector extends TreeGridConnector {
         if (event.hasPropertyChanged("emptyStateLinkMessage")) {
             if (getWidget().getEmptyState() != null) {
                 getWidget().getEmptyState().setLinkMessage(getState().emptyStateLinkMessage);
-            }
-        }
-        if (event.hasPropertyChanged("emptyStateLinkShortcut")) {
-            if (getWidget().getEmptyState() != null) {
-                getWidget().getEmptyState().setLinkShortcut(getState().emptyStateLinkShortcut);
             }
         }
     }

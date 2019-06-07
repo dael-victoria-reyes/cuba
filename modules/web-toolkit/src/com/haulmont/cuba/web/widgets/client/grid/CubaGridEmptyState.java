@@ -21,7 +21,6 @@ public class CubaGridEmptyState implements EventListener {
     protected DivElement messageLabel;
 
     protected SpanElement linkMessageLabel;
-    protected SpanElement linkShortcutLabel;
 
     public CubaGridEmptyState() {
         container = Document.get().createDivElement();
@@ -32,13 +31,9 @@ public class CubaGridEmptyState implements EventListener {
 
         messageLabel = Document.get().createDivElement();
         messageLabel.setClassName("c-datagrid-empty-state-message");
-        messageBox.appendChild(messageLabel);
 
         linkMessageLabel = Document.get().createSpanElement();
         linkMessageLabel.setClassName("c-datagrid-empty-state-link-message v-button-link");
-
-        linkShortcutLabel = Document.get().createSpanElement();
-        linkShortcutLabel.setClassName("c-datagrid-empty-state-link-shortcut");
 
         container.appendChild(messageBox);
 
@@ -48,14 +43,22 @@ public class CubaGridEmptyState implements EventListener {
 
     public void setMessage(String message) {
         messageLabel.setInnerText(message);
+
+        if (message == null || message.isEmpty()) {
+            messageLabel.removeFromParent();
+        } else if (!messageLabel.getParentElement().equals(messageBox)) {
+            messageBox.appendChild(messageLabel);
+        }
     }
 
     public void setLinkMessage(String message) {
         linkMessageLabel.setInnerText(message);
-    }
 
-    public void setLinkShortcut(String shortcut) {
-        linkShortcutLabel.setInnerText(shortcut);
+        if (message == null || message.isEmpty()) {
+            linkMessageLabel.removeFromParent();
+        } else if (!linkMessageLabel.getParentElement().equals(messageBox)) {
+            messageBox.appendChild(linkMessageLabel);
+        }
     }
 
     public void setLinkClickHandler(Runnable linkClickHandler) {
@@ -74,20 +77,6 @@ public class CubaGridEmptyState implements EventListener {
             if (linkMessageLabel.isOrHasChild(fromElement) && linkClickHandler != null) {
                 linkClickHandler.run();
             }
-        }
-    }
-
-    public void showLinkMessage(boolean show) {
-        if (show) {
-            if (!messageBox.equals(linkMessageLabel.getParentElement())) {
-                messageBox.appendChild(linkMessageLabel);
-            }
-            if (!messageBox.equals(linkShortcutLabel.getParentElement())) {
-                messageBox.appendChild(linkShortcutLabel);
-            }
-        } else {
-            linkMessageLabel.removeFromParent();
-            linkShortcutLabel.removeFromParent();
         }
     }
 }

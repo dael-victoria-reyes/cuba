@@ -160,10 +160,13 @@ public interface CubaEnhancedTable extends AggregationContainer {
     Object getItemByRowKey(String rowKey);
 
     void setShowEmptyState(boolean show);
-    void showEmptyStateLink(boolean show);
+
     void setEmptyStateMessage(String message);
+    String getEmptyStateMessage();
+
     void setEmptyStateLinkMessage(String linkMessage);
-    void setEmptyStateLinkShortcut(String shortcut);
+    String getEmptyStateLinkMessage();
+
     void setEmptyStateLinkClickHandler(Runnable handler);
 
     interface CellValueFormatter {

@@ -33,7 +33,6 @@ import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.entity.LocaleHelper;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.Notifications;
-import com.haulmont.cuba.gui.actions.list.CreateAction;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.LookupComponent.LookupSelectionChangeNotifier;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
@@ -46,7 +45,6 @@ import com.haulmont.cuba.gui.components.data.meta.ContainerDataUnit;
 import com.haulmont.cuba.gui.components.data.meta.DatasourceDataUnit;
 import com.haulmont.cuba.gui.components.data.meta.EntityTableItems;
 import com.haulmont.cuba.gui.components.data.table.DatasourceTableItems;
-import com.haulmont.cuba.gui.components.data.table.EmptyTableItems;
 import com.haulmont.cuba.gui.components.sys.ShowInfoAction;
 import com.haulmont.cuba.gui.data.CollectionDatasource;
 import com.haulmont.cuba.gui.data.Datasource;
@@ -64,7 +62,6 @@ import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.InstallTargetHandler;
 import com.haulmont.cuba.gui.screen.ScreenContext;
 import com.haulmont.cuba.gui.screen.UiControllerUtils;
-import com.haulmont.cuba.gui.screen.compatibility.LegacyFrame;
 import com.haulmont.cuba.gui.sys.UiTestIds;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
 import com.haulmont.cuba.gui.theme.ThemeConstantsManager;
@@ -195,7 +192,6 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     protected Map<String, Printable> printables; // lazily initialized Map
 
     protected boolean settingsEnabled = true;
-    protected boolean emptyStateEnabled = true;
 
     protected TableDataContainer<E> dataBinding;
 
@@ -203,6 +199,8 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
 
     protected com.vaadin.v7.ui.Table.ColumnGenerator VALUE_PROVIDER_GENERATOR =
             (source, itemId, columnId) -> formatCellValue(itemId, columnId, null);
+
+    protected Consumer<EmptyStateClickEvent<E>> emptyStateClickLinkHandler;
 
     protected WebAbstractTable() {
     }
@@ -1066,7 +1064,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
         componentComposition.setWidthUndefined();
 
         setClientCaching();
-        setupEmptyState();
+        initEmptyState();
     }
 
     protected void onAfterUnregisterComponent(Component component) {
@@ -1420,7 +1418,7 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
             setUiTestId(tableItems);
         }
 
-        setupEmptyState();
+        initEmptyState();
     }
 
     protected void setUiTestId(TableItems<E> items) {
@@ -3213,13 +3211,37 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     }
 
     @Override
-    public void setEmptyStateEnabled(boolean enabled) {
-        this.emptyStateEnabled = enabled;
+    public void setEmptyStateMessage(String stateMessage) {
+        component.setEmptyStateMessage(stateMessage);
+
+        showEmptyStateIfPossible();
     }
 
     @Override
-    public boolean isEmptyStateEnabled() {
-        return emptyStateEnabled;
+    public String getEmptyStateMessage() {
+        return component.getEmptyStateMessage();
+    }
+
+    @Override
+    public void setEmptyStateLinkMessage(String linkMessage) {
+        component.setEmptyStateLinkMessage(linkMessage);
+
+        showEmptyStateIfPossible();
+    }
+
+    @Override
+    public String getEmptyStateLinkMessage() {
+        return component.getEmptyStateLinkMessage();
+    }
+
+    @Override
+    public void setEmptyStateLinkClickHandler(Consumer<EmptyStateClickEvent<E>> handler) {
+        this.emptyStateClickLinkHandler = handler;
+    }
+
+    @Override
+    public Consumer<EmptyStateClickEvent<E>> getEmptyStateLinkClickHandler() {
+        return emptyStateClickLinkHandler;
     }
 
     protected static class InstalledStyleProvider implements StyleProvider {
@@ -3296,61 +3318,25 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
                 .show();
     }
 
-    protected void setupEmptyState() {
-        if (!emptyStateEnabled
-                || (getFrame() != null
-                && getFrame().getFrameOwner() instanceof LegacyFrame)) {
-            component.setShowEmptyState(false);
-            return;
-        }
-
-        if (dataBinding == null) {
-            component.setEmptyStateMessage(messages.getMainMessage("emptyState.message.stubContainer"));
-            component.setShowEmptyState(true);
-            component.showEmptyStateLink(false);
-            return;
-        }
-
-        component.setEmptyStateMessage(isEmptyItemsContainer()
-                ? messages.getMainMessage("emptyState.message.stubContainer")
-                : messages.getMainMessage("emptyState.tableMessage.emptyContainer"));
-        component.setEmptyStateLinkMessage(messages.getMainMessage("emptyState.link.emptyContainer"));
-
-        CreateAction createAction = (CreateAction) getActions().stream()
-                .filter(action -> action instanceof CreateAction
-                        && ((CreateAction) action).getTarget().equals(this))
-                .findFirst()
-                .orElse(null);
-        if (createAction != null) {
-            KeyCombination keyCombination = createAction.getShortcutCombination();
-            if (keyCombination != null) {
-                String shortcut = keyCombination.format();
-                component.setEmptyStateLinkShortcut("(" + shortcut + ")");
+    protected void initEmptyState() {
+        component.setEmptyStateLinkClickHandler(() -> {
+            if (emptyStateClickLinkHandler != null) {
+                emptyStateClickLinkHandler.accept(new EmptyStateClickEvent<>(this));
             }
-
-            component.setEmptyStateLinkClickHandler(() -> {
-                if (isEmptyStateLinkEnabled(createAction)) {
-                    createAction.actionPerform(this);
-                }
-            });
-        }
-
-        dataBinding.addItemSetChangeListener(event -> {
-            component.setShowEmptyState(emptyStateEnabled && dataBinding.getTableItems().size() == 0);
-            component.showEmptyStateLink(createAction != null && !isEmptyItemsContainer());
         });
 
-        component.showEmptyStateLink(createAction != null && !isEmptyItemsContainer());
-        component.setShowEmptyState(emptyStateEnabled && dataBinding.getTableItems().size() == 0);
+        if (dataBinding != null) {
+            dataBinding.addItemSetChangeListener(event -> showEmptyStateIfPossible());
+        }
+
+        showEmptyStateIfPossible();
     }
 
-    protected boolean isEmptyItemsContainer() {
-        return getItems() instanceof EmptyTableItems;
-    }
+    protected void showEmptyStateIfPossible() {
+        boolean emptyItems = (dataBinding != null && dataBinding.getTableItems().size() == 0) || getItems() == null;
+        boolean notEmptyMessages = !Strings.isNullOrEmpty(component.getEmptyStateMessage())
+                || !Strings.isNullOrEmpty(component.getEmptyStateLinkMessage());
 
-    protected boolean isEmptyStateLinkEnabled(CreateAction createAction) {
-        return createAction.getTarget().equals(this)
-                && createAction.isEnabled()
-                && createAction.isEnabledByUiPermissions();
+        component.setShowEmptyState(emptyItems && notEmptyMessages);
     }
 }

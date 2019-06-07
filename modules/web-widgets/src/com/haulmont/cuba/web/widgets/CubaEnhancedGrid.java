@@ -32,13 +32,11 @@ public interface CubaEnhancedGrid<T> {
 
     void setShowEmptyState(boolean show);
 
-    void showEmptyStateLink(boolean show);
-
+    String getEmptyStateMessage();
     void setEmptyStateMessage(String message);
 
+    String getEmptyStateLinkMessage();
     void setEmptyStateLinkMessage(String linkMessage);
-
-    void setEmptyStateLinkShortcut(String shortcut);
 
     void setEmptyStateLinkClickHandler(Runnable handler);
 }

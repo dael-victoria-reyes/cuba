@@ -119,7 +119,8 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         loadBodyRowHeight(resultComponent, element);
         loadHeaderRowHeight(resultComponent, element);
         loadFooterRowHeight(resultComponent, element);
-        loadEmptyStateEnabled(resultComponent, element);
+        loadEmptyStateMessage(resultComponent, element);
+        loadEmptyStateLinkMessage(resultComponent, element);
 
         Element columnsElement = element.element("columns");
 
@@ -650,10 +651,17 @@ public abstract class AbstractDataGridLoader<T extends DataGrid> extends Actions
         return null;
     }
 
-    protected void loadEmptyStateEnabled(DataGrid dataGrid, Element element) {
-        String emptyStateEnabled = element.attributeValue("emptyStateEnabled");
-        if (StringUtils.isNotBlank(emptyStateEnabled)) {
-            dataGrid.setEmptyStateEnabled(Boolean.parseBoolean(emptyStateEnabled));
+    protected void loadEmptyStateMessage(DataGrid dataGrid, Element element) {
+        String emptyStateMessage = element.attributeValue("emptyStateMessage");
+        if (StringUtils.isNotBlank(emptyStateMessage)) {
+            dataGrid.setEmptyStateMessage(emptyStateMessage);
+        }
+    }
+
+    protected void loadEmptyStateLinkMessage(DataGrid dataGrid, Element element) {
+        String emptyStateLinkMessage = element.attributeValue("emptyStateLinkMessage");
+        if (StringUtils.isNotBlank(emptyStateLinkMessage)) {
+            dataGrid.setEmptyStateLinkMessage(emptyStateLinkMessage);
         }
     }
 }

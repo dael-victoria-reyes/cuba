@@ -28,14 +28,6 @@ import java.util.List;
 @Connect(CubaGrid.class)
 public class CubaGridConnector extends GridConnector {
 
-    public CubaGridConnector() {
-        registerRpc(CubaGridClientRpc.class, (CubaGridClientRpc) show -> {
-            if (getWidget().getEmptyState() != null) {
-                getWidget().getEmptyState().showLinkMessage(show);
-            }
-        });
-    }
-
     @Override
     public CubaGridWidget getWidget() {
         return (CubaGridWidget) super.getWidget();
@@ -56,7 +48,6 @@ public class CubaGridConnector extends GridConnector {
                 // as emptyState element can be recreated set all messages
                 getWidget().getEmptyState().setMessage(getState().emptyStateMessage);
                 getWidget().getEmptyState().setLinkMessage(getState().emptyStateLinkMessage);
-                getWidget().getEmptyState().setLinkShortcut(getState().emptyStateLinkShortcut);
                 getWidget().getEmptyState().setLinkClickHandler(getWidget().emptyStateLinkClickHandler);
             }
         }
@@ -68,11 +59,6 @@ public class CubaGridConnector extends GridConnector {
         if (event.hasPropertyChanged("emptyStateLinkMessage")) {
             if (getWidget().getEmptyState() != null) {
                 getWidget().getEmptyState().setLinkMessage(getState().emptyStateLinkMessage);
-            }
-        }
-        if (event.hasPropertyChanged("emptyStateLinkShortcut")) {
-            if (getWidget().getEmptyState() != null) {
-                getWidget().getEmptyState().setLinkShortcut(getState().emptyStateLinkShortcut);
             }
         }
     }

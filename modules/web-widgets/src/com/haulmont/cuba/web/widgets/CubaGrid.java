@@ -16,7 +16,6 @@
 
 package com.haulmont.cuba.web.widgets;
 
-import com.haulmont.cuba.web.widgets.client.grid.CubaGridClientRpc;
 import com.haulmont.cuba.web.widgets.client.grid.CubaGridServerRpc;
 import com.haulmont.cuba.web.widgets.client.grid.CubaGridState;
 import com.haulmont.cuba.web.widgets.grid.CubaEditorField;
@@ -127,12 +126,14 @@ public class CubaGrid<T> extends Grid<T> implements CubaEnhancedGrid<T> {
 
     @Override
     public void setShowEmptyState(boolean show) {
-        getState().showEmptyState = show;
+        if (getState(false).showEmptyState != show) {
+            getState().showEmptyState = show;
+        }
     }
 
     @Override
-    public void showEmptyStateLink(boolean show) {
-        getRpcProxy(CubaGridClientRpc.class).showEmptyStateLink(show);
+    public String getEmptyStateMessage() {
+        return getState(false).emptyStateMessage;
     }
 
     @Override
@@ -141,13 +142,13 @@ public class CubaGrid<T> extends Grid<T> implements CubaEnhancedGrid<T> {
     }
 
     @Override
-    public void setEmptyStateLinkMessage(String linkMessage) {
-        getState().emptyStateLinkMessage = linkMessage;
+    public String getEmptyStateLinkMessage() {
+        return getState(false).emptyStateLinkMessage;
     }
 
     @Override
-    public void setEmptyStateLinkShortcut(String shortcut) {
-        getState().emptyStateLinkShortcut = shortcut;
+    public void setEmptyStateLinkMessage(String linkMessage) {
+        getState().emptyStateLinkMessage = linkMessage;
     }
 
     @Override

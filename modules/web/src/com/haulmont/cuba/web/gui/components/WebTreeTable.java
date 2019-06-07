@@ -246,9 +246,4 @@ public class WebTreeTable<E extends Entity> extends WebAbstractTable<CubaTreeTab
         }
         return false;
     }
-
-    @Override
-    protected boolean isEmptyItemsContainer() {
-        return getItems() instanceof EmptyTreeTableItems;
-    }
 }

@@ -301,16 +301,42 @@ public interface Table<E extends Entity>
     }
 
     /**
-     * Set to true if table should show message about empty data. True by default.
+     * Sets a message to the middle of Table body that should be appeared when it is empty.
      *
-     * @param enabled enabled option
+     * @param stateMessage message that appears when Table is empty
      */
-    void setEmptyStateEnabled(boolean enabled);
+    void setEmptyStateMessage(String stateMessage);
 
     /**
-     * @return true if empty state is enabled in table.
+     * @return message that should be appeared when Table is empty
      */
-    boolean isEmptyStateEnabled();
+    String getEmptyStateMessage();
+
+    /**
+     * Sets a link message to the middle of Table body should be appeared when it is empty.
+     *
+     * @param linkMessage message that appears when Table is empty
+     * @see #setEmptyStateLinkClickHandler(Consumer)
+     */
+    void setEmptyStateLinkMessage(String linkMessage);
+
+    /**
+     * @return link message that should be appeared when Table is empty
+     */
+    String getEmptyStateLinkMessage();
+
+    /**
+     * Sets click handler for link message. Link message can be shown when Table is empty.
+     *
+     * @param handler handler to set
+     * @see #setEmptyStateLinkMessage(String)
+     */
+    void setEmptyStateLinkClickHandler(Consumer<EmptyStateClickEvent<E>> handler);
+
+    /**
+     * @return click handler for link message
+     */
+    Consumer<EmptyStateClickEvent<E>> getEmptyStateLinkClickHandler();
 
     ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1370,4 +1396,25 @@ public interface Table<E extends Entity>
             return isTotalAggregation;
         }
     }
+
+    /**
+     * Describes empty state link click event.
+     *
+     * @param <E> entity class
+     * @see #setEmptyStateLinkMessage(String)
+     * @see #setEmptyStateLinkMessage(String)
+     */
+    class EmptyStateClickEvent<E extends Entity> extends EventObject {
+
+        public EmptyStateClickEvent(Table<E> source) {
+            super(source);
+        }
+
+        @SuppressWarnings("unchecked")
+        @Override
+        public Table<E> getSource() {
+            return (Table<E>) super.getSource();
+        }
+    }
+
 }

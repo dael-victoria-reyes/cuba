@@ -262,9 +262,4 @@ public class WebTreeDataGrid<E extends Entity> extends WebAbstractDataGrid<CubaT
 
         return settingsChanged;
     }
-
-    @Override
-    protected boolean isEmptyItemsContainer() {
-        return getItems() instanceof EmptyTreeDataGridItems;
-    }
 }

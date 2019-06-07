@@ -16,6 +16,7 @@
 
 package com.haulmont.cuba.web.gui.components;
 
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.haulmont.bali.events.Subscription;
 import com.haulmont.bali.util.Preconditions;
@@ -26,13 +27,11 @@ import com.haulmont.cuba.client.sys.PersistenceManagerClient;
 import com.haulmont.cuba.core.app.keyvalue.KeyValueMetaClass;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
-import com.haulmont.cuba.gui.actions.list.CreateAction;
 import com.haulmont.cuba.gui.components.*;
 import com.haulmont.cuba.gui.components.actions.BaseAction;
 import com.haulmont.cuba.gui.components.data.BindingState;
 import com.haulmont.cuba.gui.components.data.DataGridItems;
 import com.haulmont.cuba.gui.components.data.ValueSourceProvider;
-import com.haulmont.cuba.gui.components.data.datagrid.EmptyDataGridItems;
 import com.haulmont.cuba.gui.components.data.meta.ContainerDataUnit;
 import com.haulmont.cuba.gui.components.data.meta.DatasourceDataUnit;
 import com.haulmont.cuba.gui.components.data.meta.EntityDataGridItems;
@@ -51,7 +50,6 @@ import com.haulmont.cuba.gui.model.DataComponents;
 import com.haulmont.cuba.gui.model.InstanceContainer;
 import com.haulmont.cuba.gui.model.impl.KeyValueContainerImpl;
 import com.haulmont.cuba.gui.screen.ScreenValidation;
-import com.haulmont.cuba.gui.screen.compatibility.LegacyFrame;
 import com.haulmont.cuba.gui.sys.UiTestIds;
 import com.haulmont.cuba.gui.theme.ThemeConstants;
 import com.haulmont.cuba.gui.theme.ThemeConstantsManager;
@@ -173,7 +171,6 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
     protected boolean columnsCollapsingAllowed = true;
     protected boolean textSelectionEnabled = false;
     protected boolean editorCrossFieldValidate = true;
-    protected boolean emptyStateEnabled = true;
 
     protected Action itemClickAction;
     protected Action enterPressAction;
@@ -214,6 +211,7 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
     protected DataGridDataProvider<E> dataBinding;
 
     protected Map<E, Object> itemDatasources; // lazily initialized WeakHashMap;
+    protected Consumer<EmptyStateClickEvent<E>> emptyStateClickEventHandler;
 
     static {
         ImmutableMap.Builder<Class<? extends Renderer>, Class<? extends Renderer>> builder =
@@ -351,7 +349,7 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
         ((CubaEnhancedGrid<E>) component).setCubaEditorFieldFactory(createEditorFieldFactory());
         ((CubaEnhancedGrid<E>) component).setBeforeRefreshHandler(this::onBeforeRefreshGridData);
 
-        updateEmptyState();
+        initEmptyState();
     }
 
     protected void onBeforeRefreshGridData(E item) {
@@ -911,7 +909,7 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
             setUiTestId(dataGridItems);
         }
 
-        updateEmptyState();
+        initEmptyState();
     }
 
     protected void setUiTestId(DataGridItems<E> items) {
@@ -2931,13 +2929,37 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
     }
 
     @Override
-    public void setEmptyStateEnabled(boolean enabled) {
-        this.emptyStateEnabled = enabled;
+    public void setEmptyStateMessage(String message) {
+        component.setEmptyStateMessage(message);
+
+        showEmptyStateIfPossible();
     }
 
     @Override
-    public boolean isEmptyStateEnabled() {
-        return emptyStateEnabled;
+    public String getEmptyStateMessage() {
+        return component.getEmptyStateMessage();
+    }
+
+    @Override
+    public void setEmptyStateLinkMessage(String linkMessage) {
+        component.setEmptyStateLinkMessage(linkMessage);
+
+        showEmptyStateIfPossible();
+    }
+
+    @Override
+    public String getEmptyStateLinkMessage() {
+        return component.getEmptyStateLinkMessage();
+    }
+
+    @Override
+    public void setEmptyStateLinkClickHandler(Consumer<EmptyStateClickEvent<E>> handler) {
+        this.emptyStateClickEventHandler = handler;
+    }
+
+    @Override
+    public Consumer<EmptyStateClickEvent<E>> getEmptyStateLinkClickHandler() {
+        return emptyStateClickEventHandler;
     }
 
     protected void enableCrossFieldValidationHandling(boolean enable) {
@@ -2995,62 +3017,26 @@ public abstract class WebAbstractDataGrid<C extends Grid<E> & CubaEnhancedGrid<E
         return joinedStyle != null ? joinedStyle.toString() : null;
     }
 
-    protected void updateEmptyState() {
-        if (!emptyStateEnabled
-                || (getFrame() != null
-                && getFrame().getFrameOwner() instanceof LegacyFrame)) {
-            component.setShowEmptyState(false);
-            return;
-        }
-
-        if (dataBinding == null) {
-            component.setEmptyStateMessage(messages.getMainMessage("emptyState.message.stubContainer"));
-            component.setShowEmptyState(true);
-            component.showEmptyStateLink(false);
-            return;
-        }
-
-        component.setEmptyStateMessage(isEmptyItemsContainer()
-                ? messages.getMainMessage("emptyState.message.stubContainer")
-                : messages.getMainMessage("emptyState.dataGridMessage.emptyContainer"));
-        component.setEmptyStateLinkMessage(messages.getMainMessage("emptyState.link.emptyContainer"));
-
-        CreateAction createAction = (CreateAction) getActions().stream()
-                .filter(action -> action instanceof CreateAction
-                        && ((CreateAction) action).getTarget().equals(this))
-                .findFirst()
-                .orElse(null);
-        if (createAction != null) {
-            KeyCombination keyCombination = createAction.getShortcutCombination();
-            if (keyCombination != null) {
-                String shortcut = keyCombination.format();
-                component.setEmptyStateLinkShortcut("(" + shortcut + ")");
+    protected void initEmptyState() {
+        component.setEmptyStateLinkClickHandler(() -> {
+            if (emptyStateClickEventHandler != null) {
+                emptyStateClickEventHandler.accept(new EmptyStateClickEvent<>(this));
             }
-
-            component.setEmptyStateLinkClickHandler(() -> {
-                if (isEmptyStateLinkEnabled(createAction)) {
-                    createAction.actionPerform(this);
-                }
-            });
-        }
-
-         dataBinding.addDataProviderListener(event -> {
-            component.setShowEmptyState(emptyStateEnabled && dataBinding.getDataGridItems().size() == 0);
-            component.showEmptyStateLink(createAction != null && !isEmptyItemsContainer());
         });
 
-        component.showEmptyStateLink(createAction != null && !isEmptyItemsContainer());
-        component.setShowEmptyState(emptyStateEnabled && dataBinding.getDataGridItems().size() == 0);
+        if (dataBinding != null) {
+            dataBinding.addDataProviderListener(event -> showEmptyStateIfPossible());
+        }
+
+        showEmptyStateIfPossible();
     }
 
-    protected boolean isEmptyItemsContainer() {
-        return getItems() instanceof EmptyDataGridItems;
-    }
+    protected void showEmptyStateIfPossible() {
+        boolean emptyItems = (dataBinding != null && dataBinding.getDataGridItems().size() == 0) || getItems() == null;
+        boolean notEmptyMessages = !Strings.isNullOrEmpty(component.getEmptyStateMessage())
+                || !Strings.isNullOrEmpty(component.getEmptyStateLinkMessage());
 
-    protected boolean isEmptyStateLinkEnabled(CreateAction createAction) {
-        return createAction.getTarget().equals(this)
-                && createAction.isEnabled()
-                && createAction.isEnabledByUiPermissions();
+        component.setShowEmptyState(emptyItems && notEmptyMessages);
     }
 
     protected class CellStyleGeneratorAdapter<T extends E> implements StyleGenerator<T> {

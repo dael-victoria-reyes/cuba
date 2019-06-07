@@ -107,7 +107,8 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
         loadTextSelectionEnabled(resultComponent, element);
         loadResponsive(resultComponent, element);
         loadCss(resultComponent, element);
-        loadEmptyStateEnabled(resultComponent, element);
+        loadEmptyStateMessage(resultComponent, element);
+        loadEmptyStateLinkMessage(resultComponent, element);
 
         Element columnsElement = element.element("columns");
         Element rowsElement = element.element("rows");
@@ -754,10 +755,16 @@ public abstract class AbstractTableLoader<T extends Table> extends ActionsHolder
         return null;
     }
 
-    protected void loadEmptyStateEnabled(Table table, Element element) {
-        String emptyStateEnabled = element.attributeValue("emptyStateEnabled");
-        if (!Strings.isNullOrEmpty(emptyStateEnabled)) {
-            table.setEmptyStateEnabled(Boolean.parseBoolean(emptyStateEnabled));
+    protected void loadEmptyStateMessage(Table table, Element element) {
+        String emptyStateMessage = element.attributeValue("emptyStateMessage");
+        if (!Strings.isNullOrEmpty(emptyStateMessage)) {
+            table.setEmptyStateMessage(loadResourceString(emptyStateMessage));
+        }
+    }
+    protected void loadEmptyStateLinkMessage(Table table, Element element) {
+        String emptyStateLinkMessage = element.attributeValue("emptyStateLinkMessage");
+        if (!Strings.isNullOrEmpty(emptyStateLinkMessage)) {
+            table.setEmptyStateLinkMessage(loadResourceString(emptyStateLinkMessage));
         }
     }
 }

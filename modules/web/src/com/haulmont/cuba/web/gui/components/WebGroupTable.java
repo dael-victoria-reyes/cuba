@@ -723,9 +723,4 @@ public class WebGroupTable<E extends Entity> extends WebAbstractTable<CubaGroupT
             return ids;
         }
     }
-
-    @Override
-    protected boolean isEmptyItemsContainer() {
-        return getItems() instanceof EmptyGroupTableItems;
-    }
 }

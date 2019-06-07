@@ -69,13 +69,6 @@ public class CubaTreeTableConnector extends TreeTableConnector {
             public void requestFocus(String itemKey, String columnKey) {
                 getWidget().requestFocus(itemKey, columnKey);
             }
-
-            @Override
-            public void showEmptyStateLink(boolean show) {
-                if (getWidget()._delegate.tableEmptyState != null) {
-                    getWidget()._delegate.tableEmptyState.showLinkMessage(show);
-                }
-            }
         });
     }
 
@@ -159,14 +152,14 @@ public class CubaTreeTableConnector extends TreeTableConnector {
 
         if (stateChangeEvent.hasPropertyChanged("showEmptyState")) {
             getWidget().showEmptyState(getState().showEmptyState);
-            if (getState().showEmptyState) {
-                // as emptyState can be recreated set all messages
+            // as emptyState element can be recreated set all messages
+            if (getWidget()._delegate.tableEmptyState != null) {
                 getWidget()._delegate.tableEmptyState.setMessage(getState().emptyStateMessage);
                 getWidget()._delegate.tableEmptyState.setLinkMessage(getState().emptyStateLinkMessage);
-                getWidget()._delegate.tableEmptyState.setLinkShortcut(getState().emptyStateLinkShortcut);
                 getWidget()._delegate.tableEmptyState.setLinkClickHandler(getWidget()._delegate.emptyStateLinkClickHandler);
             }
         }
+
         if (stateChangeEvent.hasPropertyChanged("emptyStateMessage")) {
             if (getWidget()._delegate.tableEmptyState != null) {
                 getWidget()._delegate.tableEmptyState.setMessage(getState().emptyStateMessage);
@@ -175,11 +168,6 @@ public class CubaTreeTableConnector extends TreeTableConnector {
         if (stateChangeEvent.hasPropertyChanged("emptyStateLinkMessage")) {
             if (getWidget()._delegate.tableEmptyState != null) {
                 getWidget()._delegate.tableEmptyState.setLinkMessage(getState().emptyStateLinkMessage);
-            }
-        }
-        if (stateChangeEvent.hasPropertyChanged("emptyStateLinkShortcut")) {
-            if (getWidget()._delegate.tableEmptyState != null) {
-                getWidget()._delegate.tableEmptyState.setLinkShortcut(getState().emptyStateLinkShortcut);
             }
         }
     }

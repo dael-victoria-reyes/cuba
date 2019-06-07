@@ -1034,12 +1034,14 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
 
     @Override
     public void setShowEmptyState(boolean show) {
-        getState().showEmptyState = show;
+        if (getState(false).showEmptyState != show) {
+            getState().showEmptyState = show;
+        }
     }
 
     @Override
-    public void showEmptyStateLink(boolean show) {
-        getRpcProxy(CubaTableClientRpc.class).showEmptyStateLink(show);
+    public String getEmptyStateMessage() {
+        return getState(false).emptyStateMessage;
     }
 
     @Override
@@ -1048,13 +1050,13 @@ public class CubaTreeTable extends com.vaadin.v7.ui.TreeTable implements TreeTab
     }
 
     @Override
-    public void setEmptyStateLinkMessage(String linkMessage) {
-        getState().emptyStateLinkMessage = linkMessage;
+    public String getEmptyStateLinkMessage() {
+        return getState(false).emptyStateLinkMessage;
     }
 
     @Override
-    public void setEmptyStateLinkShortcut(String shortcut) {
-        getState().emptyStateLinkShortcut = shortcut;
+    public void setEmptyStateLinkMessage(String linkMessage) {
+        getState().emptyStateLinkMessage = linkMessage;
     }
 
     @Override

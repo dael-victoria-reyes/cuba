@@ -1161,7 +1161,8 @@
         <xs:attribute name="presentations" type="xs:boolean"/>
         <xs:attribute name="contextMenuEnabled" type="xs:boolean"/>
         <xs:attribute name="multiLineCells" type="xs:boolean"/>
-        <xs:attribute name="emptyStateEnabled" type="xs:boolean"/>
+        <xs:attribute name="emptyStateMessage" type="resourceString"/>
+        <xs:attribute name="emptyStateLinkMessage" type="resourceString"/>
     </xs:attributeGroup>
 
     <xs:attributeGroup name="isLayoutComponent">
@@ -2545,7 +2546,8 @@
                 <xs:attribute name="editorBuffered" type="xs:boolean"/>
                 <xs:attribute name="editorSaveCaption" type="resourceString"/>
                 <xs:attribute name="editorCancelCaption" type="resourceString"/>
-                <xs:attribute name="emptyStateEnabled" type="xs:boolean"/>
+                <xs:attribute name="emptyStateMessage" type="resourceString"/>
+                <xs:attribute name="emptyStateLinkMessage" type="resourceString"/>
 
                 <xs:attributeGroup ref="hasSettings"/>
                 <xs:attributeGroup ref="hasTabIndex"/>

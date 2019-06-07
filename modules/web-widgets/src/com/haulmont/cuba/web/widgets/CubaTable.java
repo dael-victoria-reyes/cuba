@@ -933,12 +933,9 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
 
     @Override
     public void setShowEmptyState(boolean show) {
-        getState().showEmptyState = show;
-    }
-
-    @Override
-    public void showEmptyStateLink(boolean show) {
-        getRpcProxy(CubaTableClientRpc.class).showEmptyStateLink(show);
+        if (getState(false).showEmptyState != show) {
+            getState().showEmptyState = show;
+        }
     }
 
     @Override
@@ -947,13 +944,18 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
     }
 
     @Override
+    public String getEmptyStateMessage() {
+        return getState(false).emptyStateMessage;
+    }
+
+    @Override
     public void setEmptyStateLinkMessage(String linkMessage) {
         getState().emptyStateLinkMessage = linkMessage;
     }
 
     @Override
-    public void setEmptyStateLinkShortcut(String shortcut) {
-        getState().emptyStateLinkShortcut = shortcut;
+    public String getEmptyStateLinkMessage() {
+        return getState(false).emptyStateLinkMessage;
     }
 
     @Override

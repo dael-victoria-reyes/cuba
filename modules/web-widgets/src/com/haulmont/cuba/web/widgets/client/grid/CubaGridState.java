@@ -32,7 +32,4 @@ public class CubaGridState extends GridState {
 
     @NoLayout
     public String emptyStateLinkMessage;
-
-    @NoLayout
-    public String emptyStateLinkShortcut;
 }

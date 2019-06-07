@@ -74,7 +74,4 @@ public class CubaTreeTableState extends TreeTableState {
 
     @NoLayout
     public String emptyStateLinkMessage;
-
-    @NoLayout
-    public String emptyStateLinkShortcut;
 }
