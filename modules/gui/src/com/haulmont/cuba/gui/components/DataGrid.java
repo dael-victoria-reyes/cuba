@@ -2551,11 +2551,11 @@ public interface DataGrid<E extends Entity> extends ListComponent<E>, HasButtons
     }
 
     /**
-     * Sets a message to the middle of DataGrid body that should be appeared when it is empty.
+     * Sets a message to the middle of DataGrid body that should be appeared when DataGrid is empty.
      *
-     * @param stateMessage message that appears when DataGrid is empty
+     * @param message message that appears when DataGrid is empty
      */
-    void setEmptyStateMessage(String stateMessage);
+    void setEmptyStateMessage(String message);
 
     /**
      * @return message that should be appeared when DataGrid is empty
@@ -2563,7 +2563,7 @@ public interface DataGrid<E extends Entity> extends ListComponent<E>, HasButtons
     String getEmptyStateMessage();
 
     /**
-     * Sets a link message to the middle of DataGrid body should be appeared when it is empty.
+     * Sets a link message to the middle of DataGrid body that should be appeared when DataGrid is empty.
      *
      * @param linkMessage message that appears when DataGrid is empty
      * @see #setEmptyStateLinkClickHandler(Consumer)
@@ -3023,7 +3023,7 @@ public interface DataGrid<E extends Entity> extends ListComponent<E>, HasButtons
      *
      * @param <E> entity class
      * @see #setEmptyStateLinkMessage(String)
-     * @see #setEmptyStateLinkMessage(String)
+     * @see #setEmptyStateLinkClickHandler(Consumer)
      */
     class EmptyStateClickEvent<E extends Entity> extends EventObject {
 

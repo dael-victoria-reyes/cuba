@@ -22,7 +22,6 @@ import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.gui.components.TreeTable;
 import com.haulmont.cuba.gui.components.data.TableItems;
 import com.haulmont.cuba.gui.components.data.TreeTableItems;
-import com.haulmont.cuba.gui.components.data.table.EmptyTreeTableItems;
 import com.haulmont.cuba.web.gui.components.table.TableDataContainer;
 import com.haulmont.cuba.web.gui.components.table.TableItemsEventsDelegate;
 import com.haulmont.cuba.web.gui.components.table.TreeTableDataContainer;

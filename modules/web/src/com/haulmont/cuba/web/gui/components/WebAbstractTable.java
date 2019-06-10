@@ -3211,8 +3211,8 @@ public abstract class WebAbstractTable<T extends com.vaadin.v7.ui.Table & CubaEn
     }
 
     @Override
-    public void setEmptyStateMessage(String stateMessage) {
-        component.setEmptyStateMessage(stateMessage);
+    public void setEmptyStateMessage(String message) {
+        component.setEmptyStateMessage(message);
 
         showEmptyStateIfPossible();
     }

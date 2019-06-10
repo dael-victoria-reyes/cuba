@@ -301,11 +301,11 @@ public interface Table<E extends Entity>
     }
 
     /**
-     * Sets a message to the middle of Table body that should be appeared when it is empty.
+     * Sets a message to the middle of Table body that should be appeared when Table is empty.
      *
-     * @param stateMessage message that appears when Table is empty
+     * @param message message that appears when Table is empty
      */
-    void setEmptyStateMessage(String stateMessage);
+    void setEmptyStateMessage(String message);
 
     /**
      * @return message that should be appeared when Table is empty
@@ -313,7 +313,7 @@ public interface Table<E extends Entity>
     String getEmptyStateMessage();
 
     /**
-     * Sets a link message to the middle of Table body should be appeared when it is empty.
+     * Sets a link message to the middle of Table body that should be appeared when Table is empty.
      *
      * @param linkMessage message that appears when Table is empty
      * @see #setEmptyStateLinkClickHandler(Consumer)
@@ -1402,7 +1402,7 @@ public interface Table<E extends Entity>
      *
      * @param <E> entity class
      * @see #setEmptyStateLinkMessage(String)
-     * @see #setEmptyStateLinkMessage(String)
+     * @see #setEmptyStateLinkClickHandler(Consumer)
      */
     class EmptyStateClickEvent<E extends Entity> extends EventObject {
 

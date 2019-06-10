@@ -29,7 +29,6 @@ import com.haulmont.cuba.gui.components.columnmanager.GroupColumnManager;
 import com.haulmont.cuba.gui.components.data.GroupTableItems;
 import com.haulmont.cuba.gui.components.data.TableItems;
 import com.haulmont.cuba.gui.components.data.meta.EntityTableItems;
-import com.haulmont.cuba.gui.components.data.table.EmptyGroupTableItems;
 import com.haulmont.cuba.gui.data.GroupInfo;
 import com.haulmont.cuba.web.gui.components.table.GroupTableDataContainer;
 import com.haulmont.cuba.web.gui.components.table.TableDataContainer;

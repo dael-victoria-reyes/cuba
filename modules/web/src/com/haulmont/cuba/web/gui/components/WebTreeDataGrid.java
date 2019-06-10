@@ -7,7 +7,6 @@ import com.haulmont.cuba.gui.components.TreeDataGrid;
 import com.haulmont.cuba.gui.components.data.BindingState;
 import com.haulmont.cuba.gui.components.data.DataGridItems;
 import com.haulmont.cuba.gui.components.data.TreeDataGridItems;
-import com.haulmont.cuba.gui.components.data.datagrid.EmptyTreeDataGridItems;
 import com.haulmont.cuba.web.gui.components.datagrid.DataGridDataProvider;
 import com.haulmont.cuba.web.gui.components.datagrid.HierarchicalDataGridDataProvider;
 import com.haulmont.cuba.web.widgets.CubaTreeGrid;
