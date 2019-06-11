@@ -257,7 +257,7 @@ public class WindowConfig {
 
                 WindowInfo windowInfo = new WindowInfo(definition.getId(), windowAttributesProvider,
                         definition.getControllerClass(), definition.getRouteDefinition());
-                registerScreen(definition.getId(), windowInfo);
+                registerScreen(definition, windowInfo);
             }
 
             projectScreens.clear();
@@ -344,6 +344,18 @@ public class WindowConfig {
         return routeDefinition;
     }
 
+    protected void registerScreen(UiControllerDefinition controllerDefinition, WindowInfo windowInfo) {
+        String controllerClassName = windowInfo.getControllerClassName();
+        if (controllerClassName != null) {
+            registerPrimaryEditor(windowInfo, controllerDefinition);
+            registerPrimaryLookup(windowInfo, controllerDefinition);
+        }
+
+        screens.put(controllerDefinition.getId(), windowInfo);
+
+        registerScreenRoute(controllerDefinition.getId(), windowInfo);
+    }
+
     protected void registerScreen(String id, WindowInfo windowInfo) {
         String controllerClassName = windowInfo.getControllerClassName();
         if (controllerClassName != null) {
@@ -420,6 +432,19 @@ public class WindowConfig {
         }
     }
 
+    protected void registerPrimaryEditor(WindowInfo windowInfo, UiControllerDefinition controllerDefinition) {
+        Map<String, Object> primaryEditorAnnotation =
+                controllerDefinition.getAnnotationAttributes(PrimaryEditorScreen.class.getName());
+        if (primaryEditorAnnotation != null) {
+            Class entityClass = (Class) primaryEditorAnnotation.get("value");
+            if (entityClass != null) {
+                MetaClass metaClass = metadata.getClass(entityClass);
+                MetaClass originalMetaClass = metadata.getExtendedEntities().getOriginalOrThisMetaClass(metaClass);
+                primaryEditors.put(originalMetaClass.getJavaClass(), windowInfo);
+            }
+        }
+    }
+
     protected void registerPrimaryLookup(WindowInfo windowInfo, AnnotationMetadata annotationMetadata) {
         Map<String, Object> primaryEditorAnnotation =
                 annotationMetadata.getAnnotationAttributes(PrimaryLookupScreen.class.getName());
@@ -484,11 +509,10 @@ public class WindowConfig {
      *
      * @param className the fully qualified name of the screen class to load
      */
-    public void loadScreenClass(String className) {
-        try {
-            javaClassLoader.loadClass(className);
-        } catch (ClassNotFoundException e) {
-            log.error("Failed to hot deploy screen '{}'. Unable to load screen class", className);
+    public void loadScreenClass(final String className) {
+        final Class<?> screenClass = scripting.loadClass(className);
+        if (screenClass == null) {
+            log.warn("Failed to hot deploy screen '{}'. Unable to load screen class", className);
             return;
         }
 
@@ -496,49 +520,58 @@ public class WindowConfig {
         controllersConfiguration.setApplicationContext(applicationContext);
         controllersConfiguration.setMetadataReaderFactory(metadataReaderFactory);
 
-        UiControllerDefinition controllerDefinition = extractControllerDefinition(loadClassMetadata(className));
+        UiControllerDefinition uiControllerDefinition = new UiControllerDefinition(new UiControllerDefinitionProvider() {
+            @Override
+            public String getId() {
+                //noinspection unchecked
+                return getControllerId((Class<? extends FrameOwner>) screenClass);
+            }
 
-        controllersConfiguration.setExplicitDefinitions(Collections.singletonList(controllerDefinition));
+            @Override
+            public String getControllerClass() {
+                return className;
+            }
+
+            @Override
+            public RouteDefinition getRouteDefinition() {
+                //noinspection unchecked
+                return getControllerRouteDefinition((Class<? extends FrameOwner>) screenClass);
+            }
+        });
+
+        controllersConfiguration.setExplicitDefinitions(Collections.singletonList(uiControllerDefinition));
 
         configurations.add(controllersConfiguration);
 
         reset();
     }
 
-    // CAUTION: copied from UiControllersConfiguration
-    public UiControllerDefinition extractControllerDefinition(MetadataReader metadataReader) {
-        Map<String, Object> uiControllerAnn =
-                metadataReader.getAnnotationMetadata().getAnnotationAttributes(UiController.class.getName());
+    public String getControllerId(Class<? extends FrameOwner> screenClass) {
+        UiController uiController = screenClass.getAnnotation(UiController.class);
 
         String idAttr = null;
         String valueAttr = null;
-        if (uiControllerAnn != null) {
-            idAttr = (String) uiControllerAnn.get(UiController.ID_ATTRIBUTE);
-            valueAttr = (String) uiControllerAnn.get(UiController.VALUE_ATTRIBUTE);
+        if (uiController != null) {
+            idAttr = uiController.id();
+            valueAttr = uiController.value();
         }
 
-        String className = metadataReader.getClassMetadata().getClassName();
-        String controllerId = UiDescriptorUtils.getInferredScreenId(idAttr, valueAttr, className);
-        RouteDefinition routeDefinition = extractRouteDefinition(metadataReader);
-
-        return new UiControllerDefinition(controllerId, className, routeDefinition);
+        return UiDescriptorUtils.getInferredScreenId(idAttr, valueAttr, screenClass.getName());
     }
 
-    // CAUTION: copied from UiControllersConfiguration
-    protected RouteDefinition extractRouteDefinition(MetadataReader metadataReader) {
-        Map<String, Object> routeAnnotation =
-                metadataReader.getAnnotationMetadata().getAnnotationAttributes(Route.class.getName());
+    protected RouteDefinition getControllerRouteDefinition(Class<? extends FrameOwner> screenClass) {
+        Route route = screenClass.getAnnotation(Route.class);
 
-        if (routeAnnotation == null) {
-            routeAnnotation = traverseForRoute(metadataReader);
+        if (route == null) {
+            route = traverseForRoute(screenClass);
         }
 
         RouteDefinition routeDefinition = null;
 
-        if (routeAnnotation != null) {
-            String pathAttr = (String) routeAnnotation.get(Route.PATH_ATTRIBUTE);
-            String parentPrefixAttr = (String) routeAnnotation.get(Route.PARENT_PREFIX_ATTRIBUTE);
-            boolean rootRoute = (boolean) routeAnnotation.get(Route.ROOT_ATTRIBUTE);
+        if (route != null) {
+            String pathAttr = route.path();
+            String parentPrefixAttr = route.parentPrefix();
+            boolean rootRoute = route.root();
 
             routeDefinition = new RouteDefinition(pathAttr, parentPrefixAttr, rootRoute);
         }
@@ -546,27 +579,18 @@ public class WindowConfig {
         return routeDefinition;
     }
 
-    // CAUTION: copied from UiControllersConfiguration
     @Nullable
-    protected Map<String, Object> traverseForRoute(MetadataReader metadataReader) {
-        String superClazz = metadataReader.getClassMetadata().getSuperClassName();
+    protected Route traverseForRoute(Class<? extends FrameOwner> screenClass) {
+        Class<?> superClass = screenClass.getSuperclass();
 
-        if (Screen.class.getName().equals(superClazz)
-                || superClazz == null) {
+        if (Screen.class.getName().equals(superClass.getName())) {
             return null;
         }
 
-        try {
-            MetadataReader superReader = metadataReaderFactory.getMetadataReader(superClazz);
-            Map<String, Object> routeAnnotation = superReader.getAnnotationMetadata()
-                    .getAnnotationAttributes(Route.class.getName());
+        Route route = superClass.getAnnotation(Route.class);
 
-            return routeAnnotation != null
-                    ? routeAnnotation
-                    : traverseForRoute(superReader);
-        } catch (IOException e) {
-            throw new RuntimeException("Unable to read class: %s" + superClazz);
-        }
+        return route != null ? route
+                : traverseForRoute(screenClass);
     }
 
     /**

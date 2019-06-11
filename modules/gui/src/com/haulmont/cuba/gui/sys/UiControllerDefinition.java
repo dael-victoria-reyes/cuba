@@ -22,16 +22,14 @@ public final class UiControllerDefinition {
     private final String controllerClass;
     private final RouteDefinition routeDefinition;
 
-    public UiControllerDefinition(String id, String controllerClass) {
-        this.id = id;
-        this.controllerClass = controllerClass;
-        this.routeDefinition = null;
-    }
+    private final UiControllerDefinitionProvider definitionProvider;
 
-    public UiControllerDefinition(String id, String controllerClass, RouteDefinition routeDefinition) {
-        this.id = id;
-        this.controllerClass = controllerClass;
-        this.routeDefinition = routeDefinition;
+    public UiControllerDefinition(UiControllerDefinitionProvider definitionProvider) {
+        this.definitionProvider = definitionProvider;
+
+        id = definitionProvider.getId();
+        controllerClass = definitionProvider.getControllerClass();
+        routeDefinition = definitionProvider.getRouteDefinition();
     }
 
     public String getId() {

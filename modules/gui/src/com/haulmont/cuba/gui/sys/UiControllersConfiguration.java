@@ -86,13 +86,32 @@ public class UiControllersConfiguration extends AbstractScanConfiguration {
         Stream<UiControllerDefinition> scannedControllersStream = basePackages.stream()
                 .flatMap(this::scanPackage)
                 .filter(this::isCandidateUiController)
-                .map(this::extractControllerDefinition);
+                .map(this::toUiControllerDefinition);
 
         return Stream.concat(scannedControllersStream, explicitDefinitions.stream())
                 .collect(Collectors.toList());
     }
 
-    protected UiControllerDefinition extractControllerDefinition(MetadataReader metadataReader) {
+    protected UiControllerDefinition toUiControllerDefinition(MetadataReader metadataReader) {
+        return new UiControllerDefinition(new UiControllerDefinitionProvider() {
+            @Override
+            public String getId() {
+                return getControllerId(metadataReader);
+            }
+
+            @Override
+            public String getControllerClass() {
+                return metadataReader.getClassMetadata().getClassName();
+            }
+
+            @Override
+            public RouteDefinition getRouteDefinition() {
+                return extractRouteDefinition(metadataReader);
+            }
+        });
+    }
+
+    protected String getControllerId(MetadataReader metadataReader) {
         Map<String, Object> uiControllerAnn =
                 metadataReader.getAnnotationMetadata().getAnnotationAttributes(UiController.class.getName());
 
@@ -104,10 +123,7 @@ public class UiControllersConfiguration extends AbstractScanConfiguration {
         }
 
         String className = metadataReader.getClassMetadata().getClassName();
-        String controllerId = UiDescriptorUtils.getInferredScreenId(idAttr, valueAttr, className);
-        RouteDefinition routeDefinition = extractRouteDefinition(metadataReader);
-
-        return new UiControllerDefinition(controllerId, className, routeDefinition);
+        return UiDescriptorUtils.getInferredScreenId(idAttr, valueAttr, className);
     }
 
     protected RouteDefinition extractRouteDefinition(MetadataReader metadataReader) {
