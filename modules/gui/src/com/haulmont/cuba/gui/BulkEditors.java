@@ -18,6 +18,7 @@ package com.haulmont.cuba.gui;
 
 import com.haulmont.bali.util.ParamsMap;
 import com.haulmont.chile.core.model.MetaClass;
+import com.haulmont.chile.core.model.MetaProperty;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.gui.app.core.bulk.BulkEditorWindow;
 import com.haulmont.cuba.gui.components.Field;
@@ -85,6 +86,7 @@ public class BulkEditors {
                 .pair("modelValidators", builder.getModelValidators())
                 .pair("loadDynamicAttributes", builder.isLoadDynamicAttributes())
                 .pair("useConfirmDialog", builder.isUseConfirmDialog())
+                .pair("fieldSortProvider", builder.getFieldSortProvider())
                 .create());
 
         BulkEditorWindow bulkEditorWindow = (BulkEditorWindow) screens.create("bulkEditor", builder.launchMode, options);
@@ -146,6 +148,7 @@ public class BulkEditors {
         protected List<Field.Validator> modelValidators;
         protected Boolean loadDynamicAttributes;
         protected Boolean useConfirmDialog;
+        protected Function<List<MetaProperty>, List<MetaProperty>> fieldSortProvider;
 
         public EditorBuilder(EditorBuilder<E> builder) {
             this.metaClass = builder.metaClass;
@@ -162,6 +165,7 @@ public class BulkEditors {
             this.modelValidators = builder.modelValidators;
             this.loadDynamicAttributes = builder.loadDynamicAttributes;
             this.useConfirmDialog = builder.useConfirmDialog;
+            this.fieldSortProvider = builder.fieldSortProvider;
         }
 
         public EditorBuilder(MetaClass metaClass, Collection<E> entities, FrameOwner origin,
@@ -266,6 +270,17 @@ public class BulkEditors {
         }
 
         /**
+         * Sets field sort provider. It allows you to sort fields by custom logic.
+         *
+         * @param fieldSortProvider function that takes list of managed properties and returns sorted list
+         * @return this builder
+         */
+        public EditorBuilder<E> withFieldSortProvider(Function<List<MetaProperty>, List<MetaProperty>> fieldSortProvider) {
+            this.fieldSortProvider = fieldSortProvider;
+            return this;
+        }
+
+        /**
          * @return a {@link FrameOwner} of bulk editor
          */
         public FrameOwner getOrigin() {
@@ -342,6 +357,13 @@ public class BulkEditors {
          */
         public Boolean isUseConfirmDialog() {
             return useConfirmDialog;
+        }
+
+        /**
+         * @return field sort provider that takes a list of managed properties and returns sorted list
+         */
+        public Function<List<MetaProperty>, List<MetaProperty>> getFieldSortProvider() {
+            return fieldSortProvider;
         }
 
         /**

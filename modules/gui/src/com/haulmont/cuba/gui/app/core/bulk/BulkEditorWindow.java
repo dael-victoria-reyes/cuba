@@ -52,7 +52,9 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import static com.haulmont.bali.util.Preconditions.checkNotNullArgument;
 
@@ -104,6 +106,8 @@ public class BulkEditorWindow extends AbstractWindow {
     protected Map<String, Consumer> fieldValidators;
     @WindowParam
     protected List<Consumer> modelValidators;
+    @WindowParam
+    protected Function<List<MetaProperty>, List<MetaProperty>> fieldSortProvider;
 
     protected Pattern excludeRegex;
 
@@ -183,7 +187,16 @@ public class BulkEditorWindow extends AbstractWindow {
         fieldsScrollBox.add(grid);
 
         List<ManagedField> editFields = new ArrayList<>(managedFields.values());
-        editFields.sort(Comparator.comparing(ManagedField::getLocalizedName));
+
+        // sort fields
+        Comparator comparator = Comparator.comparing(ManagedField::getLocalizedName);
+        if (fieldSortProvider != null) {
+            List<MetaProperty> sorted = fieldSortProvider.apply(editFields.stream()
+                    .map(ManagedField::getMetaProperty)
+                    .collect(Collectors.toList()));
+            comparator = Comparator.<ManagedField>comparingInt(item -> sorted.indexOf(item.getMetaProperty()));
+        }
+        editFields.sort(comparator);
 
         String fieldWidth = themeConstants.get("cuba.gui.BulkEditorWindow.field.width");
 
