@@ -18,37 +18,35 @@ package com.haulmont.cuba.gui.sys;
 
 public final class UiControllerDefinition {
 
-    private final String id;
-    private final String controllerClass;
-    private final RouteDefinition routeDefinition;
-
-    private final UiControllerDefinitionProvider definitionProvider;
+    protected final UiControllerDefinitionProvider definitionProvider;
 
     public UiControllerDefinition(UiControllerDefinitionProvider definitionProvider) {
         this.definitionProvider = definitionProvider;
+    }
 
-        id = definitionProvider.getId();
-        controllerClass = definitionProvider.getControllerClass();
-        routeDefinition = definitionProvider.getRouteDefinition();
+    public UiControllerDefinitionProvider getDefinitionProvider() {
+        return definitionProvider;
     }
 
     public String getId() {
-        return id;
+        return definitionProvider.getId();
     }
 
     public String getControllerClass() {
-        return controllerClass;
+        return definitionProvider.getControllerClass();
     }
 
     public RouteDefinition getRouteDefinition() {
-        return routeDefinition;
+        return definitionProvider.getRouteDefinition();
     }
 
     @Override
     public String toString() {
+        RouteDefinition routeDefinition = getRouteDefinition();
+
         return "UiControllerDefinition{" +
-                "id='" + id + '\'' +
-                ", controllerClass='" + controllerClass + '\'' +
+                "id='" + getId() + '\'' +
+                ", controllerClass='" + getControllerClass() + '\'' +
                 (routeDefinition == null
                         ? ""
                         : ", " + routeDefinition.toString()) +

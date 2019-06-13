@@ -27,7 +27,6 @@ import com.haulmont.cuba.core.global.Metadata;
 import com.haulmont.cuba.core.global.Resources;
 import com.haulmont.cuba.core.global.Scripting;
 import com.haulmont.cuba.core.sys.AppContext;
-import com.haulmont.cuba.core.sys.javacl.JavaClassLoader;
 import com.haulmont.cuba.gui.NoSuchScreenException;
 import com.haulmont.cuba.gui.Route;
 import com.haulmont.cuba.gui.components.AbstractFrame;
@@ -54,6 +53,9 @@ import javax.annotation.Nullable;
 import javax.inject.Inject;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -94,8 +96,6 @@ public class WindowConfig {
     protected Resources resources;
     @Inject
     protected Scripting scripting;
-    @Inject
-    protected JavaClassLoader javaClassLoader;
     @Inject
     protected Metadata metadata;
     @Inject
@@ -422,19 +422,16 @@ public class WindowConfig {
     protected void registerPrimaryEditor(WindowInfo windowInfo, AnnotationMetadata annotationMetadata) {
         Map<String, Object> primaryEditorAnnotation =
                 annotationMetadata.getAnnotationAttributes(PrimaryEditorScreen.class.getName());
-        if (primaryEditorAnnotation != null) {
-            Class entityClass = (Class) primaryEditorAnnotation.get("value");
-            if (entityClass != null) {
-                MetaClass metaClass = metadata.getClass(entityClass);
-                MetaClass originalMetaClass = metadata.getExtendedEntities().getOriginalOrThisMetaClass(metaClass);
-                primaryEditors.put(originalMetaClass.getJavaClass(), windowInfo);
-            }
-        }
+        registerPrimaryEditor(windowInfo, primaryEditorAnnotation);
     }
 
     protected void registerPrimaryEditor(WindowInfo windowInfo, UiControllerDefinition controllerDefinition) {
-        Map<String, Object> primaryEditorAnnotation =
-                controllerDefinition.getAnnotationAttributes(PrimaryEditorScreen.class.getName());
+        Map<String, Object> primaryEditorAnnotation = controllerDefinition.getDefinitionProvider()
+                .getAnnotationAttributes(PrimaryEditorScreen.class.getName());
+        registerPrimaryEditor(windowInfo, primaryEditorAnnotation);
+    }
+
+    protected void registerPrimaryEditor(WindowInfo windowInfo, Map<String, Object> primaryEditorAnnotation) {
         if (primaryEditorAnnotation != null) {
             Class entityClass = (Class) primaryEditorAnnotation.get("value");
             if (entityClass != null) {
@@ -448,6 +445,16 @@ public class WindowConfig {
     protected void registerPrimaryLookup(WindowInfo windowInfo, AnnotationMetadata annotationMetadata) {
         Map<String, Object> primaryEditorAnnotation =
                 annotationMetadata.getAnnotationAttributes(PrimaryLookupScreen.class.getName());
+        registerPrimaryLookup(windowInfo, primaryEditorAnnotation);
+    }
+
+    protected void registerPrimaryLookup(WindowInfo windowInfo, UiControllerDefinition controllerDefinition) {
+        Map<String, Object> primaryEditorAnnotation = controllerDefinition.getDefinitionProvider()
+                .getAnnotationAttributes(PrimaryLookupScreen.class.getName());
+        registerPrimaryLookup(windowInfo, primaryEditorAnnotation);
+    }
+
+    protected void registerPrimaryLookup(WindowInfo windowInfo, Map<String, Object> primaryEditorAnnotation) {
         if (primaryEditorAnnotation != null) {
             Class entityClass = (Class) primaryEditorAnnotation.get("value");
             if (entityClass != null) {
@@ -459,48 +466,15 @@ public class WindowConfig {
     }
 
     protected MetadataReader loadClassMetadata(String className) {
-        Resource resource = loadClassResourceNN(className);
+        Resource resource = getResourceLoader().getResource("/" + className.replace(".", "/") + ".class");
+        if (!resource.isReadable()) {
+            throw new RuntimeException(String.format("Resource %s is not readable for class %s", resource, className));
+        }
         try {
             return getMetadataReaderFactory().getMetadataReader(resource);
         } catch (IOException e) {
             throw new RuntimeException("Unable to read resource " + resource, e);
         }
-    }
-
-    /**
-     * Loads {@link Resource} for the given {@code className}
-     *
-     * @param className FQN of class to load
-     * @return class resource or null if class cannot be loaded
-     */
-    protected Resource loadClassResource(String className) {
-        String location = "/" + className.replace(".", "/") + ".class";
-        Resource resource = getResourceLoader().getResource(location);
-        if (!resource.isReadable()) {
-            resource = resources.getResource(location);
-        }
-        if (!resource.isReadable()) {
-            resource = javaClassLoader.getClassResource(className);
-        }
-
-        return resource == null ? null
-                : resource.isReadable()
-                        ? resource : null;
-    }
-
-    /**
-     * Loads {@link Resource} for the given {@code className}
-     *
-     * @param className FQN of class to load
-     * @return class resource
-     * @throws RuntimeException if class cannot be loaded
-     */
-    protected Resource loadClassResourceNN(String className) {
-        Resource resource = loadClassResource(className);
-        if (!resource.isReadable()) {
-            throw new RuntimeException(String.format("Resource %s is not readable for class %s", resource, className));
-        }
-        return resource;
     }
 
     /**
@@ -511,7 +485,8 @@ public class WindowConfig {
      */
     public void loadScreenClass(final String className) {
         final Class<?> screenClass = scripting.loadClass(className);
-        if (screenClass == null) {
+        if (screenClass == null
+                || !FrameOwner.class.isAssignableFrom(screenClass)) {
             log.warn("Failed to hot deploy screen '{}'. Unable to load screen class", className);
             return;
         }
@@ -521,6 +496,7 @@ public class WindowConfig {
         controllersConfiguration.setMetadataReaderFactory(metadataReaderFactory);
 
         UiControllerDefinition uiControllerDefinition = new UiControllerDefinition(new UiControllerDefinitionProvider() {
+
             @Override
             public String getId() {
                 //noinspection unchecked
@@ -536,6 +512,11 @@ public class WindowConfig {
             public RouteDefinition getRouteDefinition() {
                 //noinspection unchecked
                 return getControllerRouteDefinition((Class<? extends FrameOwner>) screenClass);
+            }
+
+            @Override
+            public Map<String, Object> getAnnotationAttributes(String annotationName) {
+                return getControllerAnnotationAttributes(annotationName, screenClass);
             }
         });
 
@@ -580,17 +561,37 @@ public class WindowConfig {
     }
 
     @Nullable
-    protected Route traverseForRoute(Class<? extends FrameOwner> screenClass) {
-        Class<?> superClass = screenClass.getSuperclass();
-
+    protected Route traverseForRoute(Class screenClass) {
+        //noinspection unchecked
+        Class<? extends FrameOwner> superClass = screenClass.getSuperclass();
         if (Screen.class.getName().equals(superClass.getName())) {
             return null;
         }
-
         Route route = superClass.getAnnotation(Route.class);
 
         return route != null ? route
-                : traverseForRoute(screenClass);
+                : traverseForRoute(superClass);
+    }
+
+    protected Map<String, Object> getControllerAnnotationAttributes(String annotationName, Class<?> screenClass) {
+        for (Annotation annotation : screenClass.getAnnotations()) {
+            Class<? extends Annotation> annotationClass = annotation.getClass();
+            if (!annotationClass.getName().equals(annotationName)) {
+                continue;
+            }
+
+            Map<String, Object> annotationAttributes = new HashMap<>();
+            for (Method method : annotationClass.getDeclaredMethods()) {
+                try {
+                    annotationAttributes.put(method.getName(), method.invoke(annotation));
+                } catch (IllegalAccessException | InvocationTargetException e) {
+                    log.warn("Failed to get '{}#{}' property value for class '{}'",
+                            annotationClass.getName(), method.getName(), screenClass.getName(), e);
+                }
+            }
+            return annotationAttributes;
+        }
+        return Collections.emptyMap();
     }
 
     /**

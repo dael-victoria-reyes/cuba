@@ -108,6 +108,11 @@ public class UiControllersConfiguration extends AbstractScanConfiguration {
             public RouteDefinition getRouteDefinition() {
                 return extractRouteDefinition(metadataReader);
             }
+
+            @Override
+            public Map<String, Object> getAnnotationAttributes(String annotationName) {
+                return metadataReader.getAnnotationMetadata().getAnnotationAttributes(annotationName);
+            }
         });
     }
 

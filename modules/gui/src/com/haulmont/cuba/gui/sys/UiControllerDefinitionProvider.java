@@ -16,6 +16,8 @@
 
 package com.haulmont.cuba.gui.sys;
 
+import java.util.Map;
+
 public interface UiControllerDefinitionProvider {
 
     String getId();
@@ -23,4 +25,6 @@ public interface UiControllerDefinitionProvider {
     String getControllerClass();
 
     RouteDefinition getRouteDefinition();
+
+    Map<String, Object> getAnnotationAttributes(String annotationName);
 }
