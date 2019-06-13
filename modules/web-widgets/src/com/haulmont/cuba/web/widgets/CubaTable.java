@@ -638,9 +638,9 @@ public class CubaTable extends com.vaadin.v7.ui.Table implements TableSortableCo
     }
 
     @Override
-    public Map<Object, Object> doTypedAggregation(Context context) {
+    public Map<Object, Object> aggregateValues(Context context) {
         if (items instanceof AggregationContainer && isAggregatable()) {
-            return ((AggregationContainer) items).doTypedAggregation(context);
+            return ((AggregationContainer) items).aggregateValues(context);
         }
         throw new IllegalStateException("Table container is not AggregationContainer: " + items.getClass());
     }

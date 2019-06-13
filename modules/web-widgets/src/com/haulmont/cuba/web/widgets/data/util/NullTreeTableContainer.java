@@ -348,7 +348,7 @@ public class NullTreeTableContainer extends ContainerHierarchicalWrapper
     }
 
     @Override
-    public Map<Object, Object> doTypedAggregation(Context context) {
+    public Map<Object, Object> aggregateValues(Context context) {
         throw new IllegalStateException("Wrapped container is not AggregationContainer: " + _container().getClass());
     }
 
