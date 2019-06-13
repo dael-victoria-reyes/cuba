@@ -29,6 +29,7 @@ import com.haulmont.cuba.core.entity.CategoryAttribute;
 import com.haulmont.cuba.core.entity.Entity;
 import com.haulmont.cuba.core.global.*;
 import com.haulmont.cuba.gui.AppConfig;
+import com.haulmont.cuba.gui.BulkEditors;
 import com.haulmont.cuba.gui.UiComponents;
 import com.haulmont.cuba.gui.WindowParam;
 import com.haulmont.cuba.gui.components.*;
@@ -52,7 +53,6 @@ import org.slf4j.LoggerFactory;
 import javax.inject.Inject;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -107,7 +107,7 @@ public class BulkEditorWindow extends AbstractWindow {
     @WindowParam
     protected List<Consumer> modelValidators;
     @WindowParam
-    protected Function<List<MetaProperty>, List<MetaProperty>> fieldSortProvider;
+    protected BulkEditors.FieldSorter fieldSorter;
 
     protected Pattern excludeRegex;
 
@@ -190,8 +190,8 @@ public class BulkEditorWindow extends AbstractWindow {
 
         // sort fields
         Comparator comparator = Comparator.comparing(ManagedField::getLocalizedName);
-        if (fieldSortProvider != null) {
-            List<MetaProperty> sorted = fieldSortProvider.apply(editFields.stream()
+        if (fieldSorter != null) {
+            List<MetaProperty> sorted = fieldSorter.sort(editFields.stream()
                     .map(ManagedField::getMetaProperty)
                     .collect(Collectors.toList()));
             comparator = Comparator.<ManagedField>comparingInt(item -> sorted.indexOf(item.getMetaProperty()));

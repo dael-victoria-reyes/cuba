@@ -54,6 +54,21 @@ public class BulkEditors {
 
     private static final Logger log = LoggerFactory.getLogger(BulkEditors.class);
 
+    /**
+     * Field sorter for bulk editor window.
+     */
+    @FunctionalInterface
+    public interface FieldSorter {
+
+        /**
+         * Sorts properties from bulk editor window.
+         *
+         * @param properties properties from bulk editor window to be sort
+         * @return sorted list of meta properties
+         */
+        List<MetaProperty> sort(List<MetaProperty> properties);
+    }
+
     @Inject
     protected WindowConfig windowConfig;
 
@@ -86,7 +101,7 @@ public class BulkEditors {
                 .pair("modelValidators", builder.getModelValidators())
                 .pair("loadDynamicAttributes", builder.isLoadDynamicAttributes())
                 .pair("useConfirmDialog", builder.isUseConfirmDialog())
-                .pair("fieldSortProvider", builder.getFieldSortProvider())
+                .pair("fieldSorter", builder.getFieldSorter())
                 .create());
 
         BulkEditorWindow bulkEditorWindow = (BulkEditorWindow) screens.create("bulkEditor", builder.launchMode, options);
@@ -148,7 +163,7 @@ public class BulkEditors {
         protected List<Field.Validator> modelValidators;
         protected Boolean loadDynamicAttributes;
         protected Boolean useConfirmDialog;
-        protected Function<List<MetaProperty>, List<MetaProperty>> fieldSortProvider;
+        protected FieldSorter fieldSorter;
 
         public EditorBuilder(EditorBuilder<E> builder) {
             this.metaClass = builder.metaClass;
@@ -165,7 +180,7 @@ public class BulkEditors {
             this.modelValidators = builder.modelValidators;
             this.loadDynamicAttributes = builder.loadDynamicAttributes;
             this.useConfirmDialog = builder.useConfirmDialog;
-            this.fieldSortProvider = builder.fieldSortProvider;
+            this.fieldSorter = builder.fieldSorter;
         }
 
         public EditorBuilder(MetaClass metaClass, Collection<E> entities, FrameOwner origin,
@@ -270,13 +285,13 @@ public class BulkEditors {
         }
 
         /**
-         * Sets field sort provider. It allows you to sort fields by custom logic.
+         * Sets field sorter that allows you to sort fields by custom logic.
          *
-         * @param fieldSortProvider function that takes list of managed properties and returns sorted list
+         * @param fieldSorter field sorter
          * @return this builder
          */
-        public EditorBuilder<E> withFieldSortProvider(Function<List<MetaProperty>, List<MetaProperty>> fieldSortProvider) {
-            this.fieldSortProvider = fieldSortProvider;
+        public EditorBuilder<E> withFieldSorter(FieldSorter fieldSorter) {
+            this.fieldSorter = fieldSorter;
             return this;
         }
 
@@ -360,10 +375,10 @@ public class BulkEditors {
         }
 
         /**
-         * @return field sort provider that takes a list of managed properties and returns sorted list
+         * @return field sorter
          */
-        public Function<List<MetaProperty>, List<MetaProperty>> getFieldSortProvider() {
-            return fieldSortProvider;
+        public FieldSorter getFieldSorter() {
+            return fieldSorter;
         }
 
         /**
