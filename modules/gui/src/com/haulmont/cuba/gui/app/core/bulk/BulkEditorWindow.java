@@ -191,10 +191,10 @@ public class BulkEditorWindow extends AbstractWindow {
         // sort fields
         Comparator comparator = Comparator.comparing(ManagedField::getLocalizedName);
         if (fieldSorter != null) {
-            List<MetaProperty> sorted = fieldSorter.sort(editFields.stream()
+            Map<MetaProperty, Integer> sorted = fieldSorter.sort(editFields.stream()
                     .map(ManagedField::getMetaProperty)
                     .collect(Collectors.toList()));
-            comparator = Comparator.<ManagedField>comparingInt(item -> sorted.indexOf(item.getMetaProperty()));
+            comparator = Comparator.<ManagedField>comparingInt(item -> sorted.get(item.getMetaProperty()));
         }
         editFields.sort(comparator);
 

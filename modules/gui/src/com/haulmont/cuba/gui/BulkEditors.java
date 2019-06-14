@@ -64,9 +64,9 @@ public class BulkEditors {
          * Sorts properties from bulk editor window.
          *
          * @param properties properties from bulk editor window to be sort
-         * @return sorted list of meta properties
+         * @return map with metaProperties and their indexes
          */
-        List<MetaProperty> sort(List<MetaProperty> properties);
+        Map<MetaProperty, Integer> sort(List<MetaProperty> properties);
     }
 
     @Inject
