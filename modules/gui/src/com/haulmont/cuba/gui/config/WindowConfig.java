@@ -105,6 +105,8 @@ public class WindowConfig {
     protected ApplicationContext applicationContext;
     @Inject
     protected AnnotationScanMetadataReaderFactory metadataReaderFactory;
+    @Inject
+    protected UiControllerMetaProvider uiControllerMetaProvider;
 
     protected volatile boolean initialized;
 
@@ -426,7 +428,7 @@ public class WindowConfig {
     }
 
     protected void registerPrimaryEditor(WindowInfo windowInfo, UiControllerDefinition controllerDefinition) {
-        Map<String, Object> primaryEditorAnnotation = controllerDefinition.getDefinitionProvider()
+        Map<String, Object> primaryEditorAnnotation = controllerDefinition.getControllerMeta()
                 .getAnnotationAttributes(PrimaryEditorScreen.class.getName());
         registerPrimaryEditor(windowInfo, primaryEditorAnnotation);
     }
@@ -449,7 +451,7 @@ public class WindowConfig {
     }
 
     protected void registerPrimaryLookup(WindowInfo windowInfo, UiControllerDefinition controllerDefinition) {
-        Map<String, Object> primaryEditorAnnotation = controllerDefinition.getDefinitionProvider()
+        Map<String, Object> primaryEditorAnnotation = controllerDefinition.getControllerMeta()
                 .getAnnotationAttributes(PrimaryLookupScreen.class.getName());
         registerPrimaryLookup(windowInfo, primaryEditorAnnotation);
     }
@@ -484,114 +486,25 @@ public class WindowConfig {
      * @param className the fully qualified name of the screen class to load
      */
     public void loadScreenClass(final String className) {
-        final Class<?> screenClass = scripting.loadClass(className);
+        final Class screenClass = scripting.loadClass(className);
         if (screenClass == null
                 || !FrameOwner.class.isAssignableFrom(screenClass)) {
             log.warn("Failed to hot deploy screen '{}'. Unable to load screen class", className);
             return;
         }
 
+        //noinspection unchecked
+        UiControllerDefinition uiControllerDefinition = new UiControllerDefinition(uiControllerMetaProvider.get(screenClass));
+
         UiControllersConfiguration controllersConfiguration = new UiControllersConfiguration();
+
         controllersConfiguration.setApplicationContext(applicationContext);
         controllersConfiguration.setMetadataReaderFactory(metadataReaderFactory);
-
-        UiControllerDefinition uiControllerDefinition = new UiControllerDefinition(new UiControllerDefinitionProvider() {
-
-            @Override
-            public String getId() {
-                //noinspection unchecked
-                return getControllerId((Class<? extends FrameOwner>) screenClass);
-            }
-
-            @Override
-            public String getControllerClass() {
-                return className;
-            }
-
-            @Override
-            public RouteDefinition getRouteDefinition() {
-                //noinspection unchecked
-                return getControllerRouteDefinition((Class<? extends FrameOwner>) screenClass);
-            }
-
-            @Override
-            public Map<String, Object> getAnnotationAttributes(String annotationName) {
-                return getControllerAnnotationAttributes(annotationName, screenClass);
-            }
-        });
-
         controllersConfiguration.setExplicitDefinitions(Collections.singletonList(uiControllerDefinition));
 
         configurations.add(controllersConfiguration);
 
         reset();
-    }
-
-    public String getControllerId(Class<? extends FrameOwner> screenClass) {
-        UiController uiController = screenClass.getAnnotation(UiController.class);
-
-        String idAttr = null;
-        String valueAttr = null;
-        if (uiController != null) {
-            idAttr = uiController.id();
-            valueAttr = uiController.value();
-        }
-
-        return UiDescriptorUtils.getInferredScreenId(idAttr, valueAttr, screenClass.getName());
-    }
-
-    protected RouteDefinition getControllerRouteDefinition(Class<? extends FrameOwner> screenClass) {
-        Route route = screenClass.getAnnotation(Route.class);
-
-        if (route == null) {
-            route = traverseForRoute(screenClass);
-        }
-
-        RouteDefinition routeDefinition = null;
-
-        if (route != null) {
-            String pathAttr = route.path();
-            String parentPrefixAttr = route.parentPrefix();
-            boolean rootRoute = route.root();
-
-            routeDefinition = new RouteDefinition(pathAttr, parentPrefixAttr, rootRoute);
-        }
-
-        return routeDefinition;
-    }
-
-    @Nullable
-    protected Route traverseForRoute(Class screenClass) {
-        //noinspection unchecked
-        Class<? extends FrameOwner> superClass = screenClass.getSuperclass();
-        if (Screen.class.getName().equals(superClass.getName())) {
-            return null;
-        }
-        Route route = superClass.getAnnotation(Route.class);
-
-        return route != null ? route
-                : traverseForRoute(superClass);
-    }
-
-    protected Map<String, Object> getControllerAnnotationAttributes(String annotationName, Class<?> screenClass) {
-        for (Annotation annotation : screenClass.getAnnotations()) {
-            Class<? extends Annotation> annotationClass = annotation.getClass();
-            if (!annotationClass.getName().equals(annotationName)) {
-                continue;
-            }
-
-            Map<String, Object> annotationAttributes = new HashMap<>();
-            for (Method method : annotationClass.getDeclaredMethods()) {
-                try {
-                    annotationAttributes.put(method.getName(), method.invoke(annotation));
-                } catch (IllegalAccessException | InvocationTargetException e) {
-                    log.warn("Failed to get '{}#{}' property value for class '{}'",
-                            annotationClass.getName(), method.getName(), screenClass.getName(), e);
-                }
-            }
-            return annotationAttributes;
-        }
-        return Collections.emptyMap();
     }
 
     /**

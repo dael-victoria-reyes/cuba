@@ -19,7 +19,7 @@ package com.haulmont.cuba.gui.spring;
 import com.google.common.base.Strings;
 import com.haulmont.cuba.gui.sys.RouteDefinition;
 import com.haulmont.cuba.gui.sys.UiControllerDefinition;
-import com.haulmont.cuba.gui.sys.UiControllerDefinitionProvider;
+import com.haulmont.cuba.gui.sys.UiControllerMeta;
 import com.haulmont.cuba.gui.sys.UiControllersConfiguration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +77,7 @@ public class ScreensConfigurationParser extends AbstractBeanDefinitionParser imp
                         continue;
                     }
 
-                    definitions.add(new UiControllerDefinition(new UiControllerDefinitionProvider() {
+                    definitions.add(new UiControllerDefinition(new UiControllerMeta() {
                         @Override
                         public String getId() {
                             return id;
@@ -90,13 +90,11 @@ public class ScreensConfigurationParser extends AbstractBeanDefinitionParser imp
 
                         @Override
                         public RouteDefinition getRouteDefinition() {
-                            // TODO
                             return null;
                         }
 
                         @Override
                         public Map<String, Object> getAnnotationAttributes(String annotationName) {
-                            // TODO
                             return Collections.emptyMap();
                         }
                     }));

@@ -16,15 +16,40 @@
 
 package com.haulmont.cuba.gui.sys;
 
+import com.haulmont.cuba.gui.Route;
+import com.haulmont.cuba.gui.config.WindowConfig;
+
 import java.util.Map;
 
-public interface UiControllerDefinitionProvider {
+/**
+ * Interface implementations provide an information about specific controller.
+ *
+ * @see UiControllersConfiguration
+ * @see WindowConfig
+ */
+public interface UiControllerMeta {
 
+    String NAME = "cuba_UiControllerMeta";
+
+    /**
+     * @return controller id
+     */
     String getId();
 
+    /**
+     * @return fully qualified controller class name
+     */
     String getControllerClass();
 
+    /**
+     * @return route definition configured by the {@link Route} annotation
+     */
     RouteDefinition getRouteDefinition();
 
+    /**
+     * @param annotationName fully qualified annotation class name
+     *
+     * @return key-value pairs of annotation properties and their values
+     */
     Map<String, Object> getAnnotationAttributes(String annotationName);
 }

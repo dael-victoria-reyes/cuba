@@ -18,26 +18,26 @@ package com.haulmont.cuba.gui.sys;
 
 public final class UiControllerDefinition {
 
-    protected final UiControllerDefinitionProvider definitionProvider;
+    protected final UiControllerMeta controllerMeta;
 
-    public UiControllerDefinition(UiControllerDefinitionProvider definitionProvider) {
-        this.definitionProvider = definitionProvider;
+    public UiControllerDefinition(UiControllerMeta controllerMeta) {
+        this.controllerMeta = controllerMeta;
     }
 
-    public UiControllerDefinitionProvider getDefinitionProvider() {
-        return definitionProvider;
+    public UiControllerMeta getControllerMeta() {
+        return controllerMeta;
     }
 
     public String getId() {
-        return definitionProvider.getId();
+        return controllerMeta.getId();
     }
 
     public String getControllerClass() {
-        return definitionProvider.getControllerClass();
+        return controllerMeta.getControllerClass();
     }
 
     public RouteDefinition getRouteDefinition() {
-        return definitionProvider.getRouteDefinition();
+        return controllerMeta.getRouteDefinition();
     }
 
     @Override
