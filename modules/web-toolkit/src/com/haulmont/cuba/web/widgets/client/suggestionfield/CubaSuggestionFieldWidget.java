@@ -94,6 +94,13 @@ public class CubaSuggestionFieldWidget extends Composite implements HasEnabled, 
         textField.addKeyUpHandler(events);
         textField.addValueChangeHandler(events);
         textField.addBlurHandler(events);
+
+        if (BrowserInfo.get().isChrome()) {
+            // Chrome supports "off" and random number does not work with Chrome
+            textField.getElement().setAttribute("autocomplete", "off");
+        } else {
+            textField.getElement().setAttribute("autocomplete", Math.random() + "");
+        }
     }
 
     protected void setAsyncSearchDelayMs(int asyncSearchDelayMs) {
