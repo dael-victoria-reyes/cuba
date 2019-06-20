@@ -44,6 +44,7 @@ import org.dom4j.Element;
 import javax.annotation.Nullable;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.text.ParseException;
 import java.util.*;
 import java.util.function.Function;
@@ -423,7 +424,7 @@ public class ExcelExporter {
 
         DataFormat format = wb.createDataFormat();
         doubleFormatCellStyle = wb.createCellStyle();
-        doubleFormatCellStyle.setDataFormat(format.getFormat("#,##0.################"));
+        doubleFormatCellStyle.setDataFormat(format.getFormat("#,##0.00#############"));
     }
 
     protected int createHierarhicalRow(TreeTable table, List<Table.Column> columns,
@@ -877,5 +878,11 @@ public class ExcelExporter {
             }
         }
         return false;
+    }
+
+    protected boolean emptyFraction(Number number) {
+        BigDecimal bigDecimal = new BigDecimal(number.doubleValue());
+        int fraction = bigDecimal.scale() < 0 ? 0 : bigDecimal.scale();
+        return fraction == 0;
     }
 }
