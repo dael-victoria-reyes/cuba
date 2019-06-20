@@ -35,13 +35,13 @@ public class UrlTools {
 
     private static final Logger log = LoggerFactory.getLogger(UrlTools.class);
 
-    protected static final String ROOT_ROUTE = "^(\\w+)$";
+    protected static final String ROOT_ROUTE = "^([\\w-]+)$";
     protected static final Pattern ROOT_ROUTE_PATTERN = Pattern.compile(ROOT_ROUTE);
 
-    protected static final String NESTED_ROUTE = "^(\\w+)(?:/(\\d+))?(?:/([\\w-]+(?:|/[\\w-]+)*))?$";
+    protected static final String NESTED_ROUTE = "^([\\w-]+)(?:/(\\d+))?(?:/([\\w-]+(?:|/[\\w-]+)*))?$";
     protected static final Pattern NESTED_ROUTE_PATTERN = Pattern.compile(NESTED_ROUTE);
 
-    protected static final String PARAMS_ROUTE = "^(\\w+)(?:(?:/(\\d+))?/([\\w-]+(?:|/[\\w-]+)*))?\\?(.+)$";
+    protected static final String PARAMS_ROUTE = "^([\\w-]+)(?:(?:/(\\d+))?/([\\w-]+(?:|/[\\w-]+)*))?\\?(.+)$";
     protected static final Pattern PARAMS_ROUTE_PATTERN = Pattern.compile(PARAMS_ROUTE);
 
     protected static final String PARAMS_REGEX =

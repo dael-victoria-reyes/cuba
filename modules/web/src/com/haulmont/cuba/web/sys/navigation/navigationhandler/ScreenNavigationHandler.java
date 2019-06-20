@@ -25,11 +25,13 @@ import com.haulmont.cuba.gui.WindowParams;
 import com.haulmont.cuba.gui.config.WindowConfig;
 import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.navigation.NavigationState;
+import com.haulmont.cuba.gui.navigation.UrlParamsChangedEvent;
 import com.haulmont.cuba.gui.screen.EditorScreen;
 import com.haulmont.cuba.gui.screen.FrameOwner;
 import com.haulmont.cuba.gui.screen.MapScreenOptions;
 import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.screen.Screen;
+import com.haulmont.cuba.gui.screen.UiControllerUtils;
 import com.haulmont.cuba.gui.screen.compatibility.LegacyFrame;
 import com.haulmont.cuba.security.entity.EntityOp;
 import com.haulmont.cuba.security.entity.PermissionType;
@@ -132,8 +134,7 @@ public class ScreenNavigationHandler implements NavigationHandler {
             }
         }
 
-        return navigate(requestedState, ui, routeWindowInfos)
-                && fullyHandled(ui, requestedState);
+        return navigate(requestedState, ui, routeWindowInfos);
     }
 
     protected boolean navigate(NavigationState requestedState, AppUI ui, List<Pair<String, WindowInfo>> routeWindowInfos) {
@@ -239,6 +240,12 @@ public class ScreenNavigationHandler implements NavigationHandler {
 
         if (StringUtils.isNotEmpty(screenRoute)
                 && requestedState.getNestedRoute().endsWith(screenRoute)) {
+            Map<String, String> params = requestedState.getParams();
+            if (MapUtils.isNotEmpty(params)) {
+                UiControllerUtils.fireEvent(screen, UrlParamsChangedEvent.class,
+                        new UrlParamsChangedEvent(screen, params));
+            }
+
             ((WebWindow) screen.getWindow())
                     .setResolvedState(requestedState);
         }

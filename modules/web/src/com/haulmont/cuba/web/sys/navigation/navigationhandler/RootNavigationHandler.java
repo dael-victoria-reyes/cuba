@@ -19,8 +19,10 @@ package com.haulmont.cuba.web.sys.navigation.navigationhandler;
 import com.haulmont.cuba.gui.config.WindowConfig;
 import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.navigation.NavigationState;
+import com.haulmont.cuba.gui.navigation.UrlParamsChangedEvent;
 import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.screen.Screen;
+import com.haulmont.cuba.gui.screen.UiControllerUtils;
 import com.haulmont.cuba.web.AppUI;
 import com.haulmont.cuba.web.gui.WebWindow;
 import com.haulmont.cuba.web.sys.navigation.UrlChangeHandler;
@@ -50,6 +52,7 @@ public class RootNavigationHandler implements NavigationHandler {
         UrlChangeHandler urlChangeHandler = ui.getUrlChangeHandler();
 
         if (urlChangeHandler.isEmptyState(requestedState)) {
+            urlChangeHandler.revertNavigationState();
             return false;
         }
 
@@ -73,11 +76,21 @@ public class RootNavigationHandler implements NavigationHandler {
             return true;
         }
 
-        ui.getScreens()
-                .create(windowInfo.getId(), OpenMode.ROOT)
-                .show();
+        Screen screen = ui.getScreens().create(windowInfo.getId(), OpenMode.ROOT);
 
-        return fullyHandled(requestedState);
+        boolean hasNestedRoute = StringUtils.isNotEmpty(requestedState.getNestedRoute());
+        if (!hasNestedRoute
+                && MapUtils.isNotEmpty(requestedState.getParams())) {
+            UiControllerUtils.fireEvent(screen, UrlParamsChangedEvent.class,
+                    new UrlParamsChangedEvent(screen, requestedState.getParams()));
+
+            ((WebWindow) screen.getWindow())
+                    .setResolvedState(requestedState);
+        }
+
+        screen.show();
+
+        return !hasNestedRoute;
     }
 
     protected boolean fullyHandled(NavigationState requestedState) {
