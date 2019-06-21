@@ -16,14 +16,17 @@
 
 package com.haulmont.cuba.web.sys.navigation.navigationhandler;
 
+import com.haulmont.bali.util.ParamsMap;
 import com.haulmont.cuba.gui.config.WindowConfig;
 import com.haulmont.cuba.gui.config.WindowInfo;
 import com.haulmont.cuba.gui.navigation.NavigationState;
 import com.haulmont.cuba.gui.navigation.UrlParamsChangedEvent;
+import com.haulmont.cuba.gui.screen.MapScreenOptions;
 import com.haulmont.cuba.gui.screen.OpenMode;
 import com.haulmont.cuba.gui.screen.Screen;
 import com.haulmont.cuba.gui.screen.UiControllerUtils;
 import com.haulmont.cuba.web.AppUI;
+import com.haulmont.cuba.web.app.ui.navigation.notfoundwindow.NotFoundScreen;
 import com.haulmont.cuba.web.gui.WebWindow;
 import com.haulmont.cuba.web.sys.navigation.UrlChangeHandler;
 import org.apache.commons.collections4.MapUtils;
@@ -57,13 +60,18 @@ public class RootNavigationHandler implements NavigationHandler {
         }
 
         if (!rootChanged(requestedState, ui)) {
-            return fullyHandled(requestedState);
+            return false;
         }
 
-        WindowInfo windowInfo = windowConfig.findWindowInfoByRoute(requestedState.getRoot());
+        String rootRoute = requestedState.getRoot();
+        WindowInfo windowInfo = windowConfig.findWindowInfoByRoute(rootRoute);
+
         if (windowInfo == null) {
-            log.info("No screen found registered for route '{}'", requestedState.getRoot());
+            log.info("No registered screen found for route: '{}'", rootRoute);
             urlChangeHandler.revertNavigationState();
+
+            handle404(rootRoute, ui);
+
             return true;
         }
 
@@ -93,11 +101,6 @@ public class RootNavigationHandler implements NavigationHandler {
         return !hasNestedRoute;
     }
 
-    protected boolean fullyHandled(NavigationState requestedState) {
-        return StringUtils.isEmpty(requestedState.getNestedRoute())
-                && MapUtils.isEmpty(requestedState.getParams());
-    }
-
     protected boolean rootChanged(NavigationState requestedState, AppUI ui) {
         Screen rootScreen = ui.getScreens().getOpenedScreens()
                 .getRootScreenOrNull();
@@ -111,5 +114,13 @@ public class RootNavigationHandler implements NavigationHandler {
                 .getRoot();
 
         return !StringUtils.equals(rootRoute, requestedState.getRoot());
+    }
+
+    protected void handle404(String route, AppUI ui) {
+        MapScreenOptions options = new MapScreenOptions(ParamsMap.of("requestedRoute", route));
+
+        ui.getScreens()
+                .create(NotFoundScreen.class, OpenMode.NEW_TAB, options)
+                .show();
     }
 }

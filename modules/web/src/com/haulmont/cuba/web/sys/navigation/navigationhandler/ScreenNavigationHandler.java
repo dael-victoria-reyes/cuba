@@ -77,12 +77,9 @@ public class ScreenNavigationHandler implements NavigationHandler {
     public boolean doHandle(NavigationState requestedState, AppUI ui) {
         UrlChangeHandler urlChangeHandler = ui.getUrlChangeHandler();
 
-        if (urlChangeHandler.isEmptyState(requestedState)) {
+        if (urlChangeHandler.isEmptyState(requestedState)
+                || !isScreenChanged(requestedState, ui)) {
             return false;
-        }
-
-        if (!isScreenChanged(requestedState, ui)) {
-            return fullyHandled(ui, requestedState);
         }
 
         String requestedRoute = requestedState.getNestedRoute();
